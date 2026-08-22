@@ -1,0 +1,72 @@
+==============================================================================
+FLIPKART ORDER INTELLIGENCE & SUPPORT ASSISTANT — Part 3 transcript
+==============================================================================
+Transcript      : Return-risk question on a real order (high risk)
+Demonstrates    : Task 9(b) — routes to check_return_risk, which loads models/return_risk_model.pkl and calls its predict_proba
+LLM mode        : MOCK_LLM (deterministic; zero API keys; zero outbound network calls)
+Embedding model : all-MiniLM-L6-v2 (local)
+Retrieval       : FAISS IndexFlatIP, top_k=3 chunks
+Groundedness    : refuse a policy answer below cosine 0.45
+Intent routing  : nearest few-shot exemplar, floor 0.25
+==============================================================================
+
+------------------------------------------------------------------------------
+TURN 1
+------------------------------------------------------------------------------
+USER: Score the return risk for order 1790.
+
+-- INTENT NODE (few-shot exemplars drive this routing) --
+   nearest few-shot example : "Score the return risk for order 1024."
+   that example's intent    : return_risk
+   cosine similarity        : 0.7984
+   routing floor            : 0.25 (below floor: False)
+   FINAL INTENT             : return_risk
+   runner-up                : "What is the return-risk probability for this order?" (return_risk) @ 0.704
+   runner-up                : "Flag whether order 5567 is a return risk." (return_risk) @ 0.6176
+   order id                 : 1790 (mentioned in this turn)
+   order lookup             : order 1790 found in order history
+
+-- INPUT GUARDRAIL (prompt-injection scan, runs before any tool) --
+   patterns checked : 13
+   BLOCKED          : False
+
+-- TOOL NODE (real saved artifact, not a stand-in) --
+   {
+     "status": "ok",
+     "return_probability": 0.6877,
+     "return_probability_percent": 68.77,
+     "risk_bucket": "High",
+     "threshold_rf": 0.5,
+     "bucket_cut_points": {
+       "Low": "probability < 0.50",
+       "Medium": "0.50 <= probability < 0.65",
+       "High": "probability >= 0.65"
+     },
+     "model": "RandomForestClassifier"
+   }
+
+-- GRAPH PATH --
+   guard_node -> intent_node -> tool_node -> response_node
+
+-- FINAL STRUCTURED RESPONSE --
+   {
+     "answer": "Order 1790 has a 68.77% predicted probability of being returned, which is a HIGH risk. The buckets are anchored to the model's own F1-maximising threshold t*_rf = 0.50: Low below 0.50, Medium from 0.50 to 0.65, High at or above 0.65. Predicted by the saved tuned Random Forest.",
+     "source": "return_risk_tool",
+     "confidence": 0.6877
+   }
+
+-- CONVERSATION STATE AFTER THIS TURN --
+   turn_index     : 1
+   order_id       : 1790
+   order_features : remembered
+   history        : 2 messages
+
+==============================================================================
+NOTE
+==============================================================================
+  Order 1790 is a real row of orders_dataset.csv and falls in Part 1's held-
+  out TEST split, so the forest has never trained on it. The probability comes
+  from the saved pipeline's predict_proba; the bucket comes from t*_rf = 0.50,
+  which Part 1 computed by re-running the threshold sweep on this same saved
+  model's own probabilities.
+

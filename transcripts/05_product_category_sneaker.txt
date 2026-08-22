@@ -1,0 +1,80 @@
+==============================================================================
+FLIPKART ORDER INTELLIGENCE & SUPPORT ASSISTANT — Part 3 transcript
+==============================================================================
+Transcript      : Product-category question on a real PNG
+Demonstrates    : Task 9(c) — routes to classify_product_image, which loads models/product_classifier.pt and runs it over real pixels
+LLM mode        : MOCK_LLM (deterministic; zero API keys; zero outbound network calls)
+Embedding model : all-MiniLM-L6-v2 (local)
+Retrieval       : FAISS IndexFlatIP, top_k=3 chunks
+Groundedness    : refuse a policy answer below cosine 0.45
+Intent routing  : nearest few-shot exemplar, floor 0.25
+==============================================================================
+
+------------------------------------------------------------------------------
+TURN 1
+------------------------------------------------------------------------------
+USER: What category is this product photo?
+      [attached image: data/sample_images/07_sneaker.png]
+
+-- INTENT NODE (few-shot exemplars drive this routing) --
+   nearest few-shot example : "What category is this product photo?"
+   that example's intent    : product_category
+   cosine similarity        : 1.0
+   routing floor            : 0.25 (below floor: False)
+   FINAL INTENT             : product_category
+   runner-up                : "What item is shown in this uploaded picture?" (product_category) @ 0.6536
+   runner-up                : "Classify this product image for me." (product_category) @ 0.6473
+   order id                 : None (not available)
+
+-- INPUT GUARDRAIL (prompt-injection scan, runs before any tool) --
+   patterns checked : 13
+   BLOCKED          : False
+
+-- TOOL NODE (real saved artifact, not a stand-in) --
+   {
+     "predicted_class": "Sneaker",
+     "predicted_index": 7,
+     "confidence": 0.9987,
+     "confidence_percent": 99.87,
+     "top3": [
+       {
+         "label": "Sneaker",
+         "probability": 0.9987
+       },
+       {
+         "label": "Ankle boot",
+         "probability": 0.0011
+       },
+       {
+         "label": "Sandal",
+         "probability": 0.0003
+       }
+     ],
+     "image_path": "data/sample_images/07_sneaker.png",
+     "status": "ok"
+   }
+
+-- GRAPH PATH --
+   guard_node -> intent_node -> tool_node -> response_node
+
+-- FINAL STRUCTURED RESPONSE --
+   {
+     "answer": "This product image is classified as **Sneaker** with 99.87% confidence. Next most likely was Ankle boot at 0.11%. Classified by the saved ResNet-18 transfer-learning model reading the pixels of data/sample_images/07_sneaker.png.",
+     "source": "image_classifier_tool",
+     "confidence": 0.9987
+   }
+
+-- CONVERSATION STATE AFTER THIS TURN --
+   turn_index     : 1
+   order_id       : None
+   order_features : none
+   history        : 2 messages
+
+==============================================================================
+NOTE
+==============================================================================
+  The file was exported from the Fashion-MNIST TEST split by
+  part2/export_samples.py. The filename says 'sneaker' for human convenience
+  only — the tool opens the PNG, applies the training preprocessing and reads
+  the model's argmax. Renaming the file would not change the prediction.
+

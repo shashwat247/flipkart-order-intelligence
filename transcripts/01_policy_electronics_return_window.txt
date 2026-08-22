@@ -1,0 +1,78 @@
+==============================================================================
+FLIPKART ORDER INTELLIGENCE & SUPPORT ASSISTANT — Part 3 transcript
+==============================================================================
+Transcript      : Policy question answered via RAG (1 of 2)
+Demonstrates    : Task 9(a) — a policy question routed to retrieval and answered from the knowledge base
+LLM mode        : MOCK_LLM (deterministic; zero API keys; zero outbound network calls)
+Embedding model : all-MiniLM-L6-v2 (local)
+Retrieval       : FAISS IndexFlatIP, top_k=3 chunks
+Groundedness    : refuse a policy answer below cosine 0.45
+Intent routing  : nearest few-shot exemplar, floor 0.25
+==============================================================================
+
+------------------------------------------------------------------------------
+TURN 1
+------------------------------------------------------------------------------
+USER: How many days do I have to return a mobile phone?
+
+-- INTENT NODE (few-shot exemplars drive this routing) --
+   nearest few-shot example : "How long does a refund take for a prepaid order?"
+   that example's intent    : policy
+   cosine similarity        : 0.4361
+   routing floor            : 0.25 (below floor: False)
+   FINAL INTENT             : policy
+   runner-up                : "What is the delivery time to a non-metro address?" (policy) @ 0.3443
+   runner-up                : "Can I cancel my order after it has shipped?" (policy) @ 0.3327
+   order id                 : None (not available)
+
+-- INPUT GUARDRAIL (prompt-injection scan, runs before any tool) --
+   patterns checked : 13
+   BLOCKED          : False
+
+-- RETRIEVAL NODE (top-k chunks, cosine similarity) --
+   [1] score=0.6429  doc=POL03_electronics_return_window
+       "Electronics such as mobile phones, laptops, headphones and smart
+       watches can be returned within 7 days of delivery."
+   [2] score=0.4667  doc=POL04_home_return_window
+       "Home and kitchen products such as cookware, bedsheets, curtains and
+       small storage items can be returned within 7 days of delivery."
+   [3] score=0.4536  doc=POL10_reverse_pickup_process
+       "The returned item reaches the quality-inspection facility within 3 to
+       5 business days of collection, and the refund clock starts only after
+       that inspection passes."
+
+   chunks rolled up to unique parent documents:
+     POL03_electronics_return_window  (best chunk POL03_electronics_return_window::s00, score 0.6429)
+     POL04_home_return_window  (best chunk POL04_home_return_window::s00, score 0.4667)
+     POL10_reverse_pickup_process  (best chunk POL10_reverse_pickup_process::s02, score 0.4536)
+
+-- OUTPUT GUARDRAIL (groundedness check) --
+   best retrieved similarity : 0.6429
+   required minimum          : 0.45
+   GROUNDED                  : True
+   verdict                   : answer permitted
+
+-- GRAPH PATH --
+   guard_node -> intent_node -> retrieval_node -> response_node
+
+-- FINAL STRUCTURED RESPONSE --
+   {
+     "answer": "Electronics such as mobile phones, laptops, headphones and smart watches can be returned within 7 days of delivery. [Source: Electronics Return Window (POL03_electronics_return_window)] [Related policies: Home Products Return Window (POL04_home_return_window), Reverse Pickup Process and Timeline (POL10_reverse_pickup_process)]",
+     "source": "policy_kb",
+     "confidence": 0.6429
+   }
+
+-- CONVERSATION STATE AFTER THIS TURN --
+   turn_index     : 1
+   order_id       : None
+   order_features : none
+   history        : 2 messages
+
+==============================================================================
+NOTE
+==============================================================================
+  The answer quotes the retrieved chunk verbatim and cites its parent
+  document. MOCK_LLM cannot add a rule that was not retrieved — the answer is
+  assembled from the chunk text, so there is nowhere for an invented policy to
+  come from.
+

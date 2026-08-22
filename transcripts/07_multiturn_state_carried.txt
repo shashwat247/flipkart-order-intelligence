@@ -1,0 +1,125 @@
+==============================================================================
+FLIPKART ORDER INTELLIGENCE & SUPPORT ASSISTANT — Part 3 transcript
+==============================================================================
+Transcript      : Multi-turn conversation — state carried across turns
+Demonstrates    : Task 9(d) — turn 2 says "its" with no order id, and resolves it from state set on turn 1
+LLM mode        : MOCK_LLM (deterministic; zero API keys; zero outbound network calls)
+Embedding model : all-MiniLM-L6-v2 (local)
+Retrieval       : FAISS IndexFlatIP, top_k=3 chunks
+Groundedness    : refuse a policy answer below cosine 0.45
+Intent routing  : nearest few-shot exemplar, floor 0.25
+==============================================================================
+
+------------------------------------------------------------------------------
+TURN 1
+------------------------------------------------------------------------------
+USER: Check order 2314 for me.
+
+-- INTENT NODE (few-shot exemplars drive this routing) --
+   nearest few-shot example : "Score the return risk for order 1024."
+   that example's intent    : return_risk
+   cosine similarity        : 0.4375
+   routing floor            : 0.25 (below floor: False)
+   FINAL INTENT             : return_risk
+   runner-up                : "How likely is this specific order to come back?" (return_risk) @ 0.3826
+   runner-up                : "Flag whether order 5567 is a return risk." (return_risk) @ 0.357
+   order id                 : 2314 (mentioned in this turn)
+   order lookup             : order 2314 found in order history
+
+-- INPUT GUARDRAIL (prompt-injection scan, runs before any tool) --
+   patterns checked : 13
+   BLOCKED          : False
+
+-- TOOL NODE (real saved artifact, not a stand-in) --
+   {
+     "status": "ok",
+     "return_probability": 0.6462,
+     "return_probability_percent": 64.62,
+     "risk_bucket": "Medium",
+     "threshold_rf": 0.5,
+     "bucket_cut_points": {
+       "Low": "probability < 0.50",
+       "Medium": "0.50 <= probability < 0.65",
+       "High": "probability >= 0.65"
+     },
+     "model": "RandomForestClassifier"
+   }
+
+-- GRAPH PATH --
+   guard_node -> intent_node -> tool_node -> response_node
+
+-- FINAL STRUCTURED RESPONSE --
+   {
+     "answer": "Order 2314 has a 64.62% predicted probability of being returned, which is a MEDIUM risk. The buckets are anchored to the model's own F1-maximising threshold t*_rf = 0.50: Low below 0.50, Medium from 0.50 to 0.65, High at or above 0.65. Predicted by the saved tuned Random Forest.",
+     "source": "return_risk_tool",
+     "confidence": 0.6462
+   }
+
+-- CONVERSATION STATE AFTER THIS TURN --
+   turn_index     : 1
+   order_id       : 2314
+   order_features : remembered
+   history        : 2 messages
+
+------------------------------------------------------------------------------
+TURN 2 (same conversation)
+------------------------------------------------------------------------------
+USER: What is its return risk?
+
+-- INTENT NODE (few-shot exemplars drive this routing) --
+   nearest few-shot example : "What is the return-risk probability for this order?"
+   that example's intent    : return_risk
+   cosine similarity        : 0.6573
+   routing floor            : 0.25 (below floor: False)
+   FINAL INTENT             : return_risk
+   runner-up                : "Score the return risk for order 1024." (return_risk) @ 0.6104
+   runner-up                : "Flag whether order 5567 is a return risk." (return_risk) @ 0.5395
+   order id                 : 2314 (carried from earlier in this conversation)
+
+-- INPUT GUARDRAIL (prompt-injection scan, runs before any tool) --
+   patterns checked : 13
+   BLOCKED          : False
+
+-- TOOL NODE (real saved artifact, not a stand-in) --
+   {
+     "status": "ok",
+     "return_probability": 0.6462,
+     "return_probability_percent": 64.62,
+     "risk_bucket": "Medium",
+     "threshold_rf": 0.5,
+     "bucket_cut_points": {
+       "Low": "probability < 0.50",
+       "Medium": "0.50 <= probability < 0.65",
+       "High": "probability >= 0.65"
+     },
+     "model": "RandomForestClassifier"
+   }
+
+-- GRAPH PATH --
+   guard_node -> intent_node -> tool_node -> response_node
+
+-- FINAL STRUCTURED RESPONSE --
+   {
+     "answer": "Order 2314 has a 64.62% predicted probability of being returned, which is a MEDIUM risk. The buckets are anchored to the model's own F1-maximising threshold t*_rf = 0.50: Low below 0.50, Medium from 0.50 to 0.65, High at or above 0.65. Predicted by the saved tuned Random Forest.",
+     "source": "return_risk_tool",
+     "confidence": 0.6462
+   }
+
+-- CONVERSATION STATE AFTER THIS TURN --
+   turn_index     : 2
+   order_id       : 2314
+   order_features : remembered
+   history        : 4 messages
+
+==============================================================================
+WHAT THIS PROVES
+==============================================================================
+  Turn 2's text contains no order id at all. The intent node reports
+  order_id=2314 sourced as "carried from earlier in this conversation", and
+  the answer names order 2314 — so the id came from the LangGraph state this
+  conversation carried forward from turn 1, not from the message.
+
+  The state lives on this Conversation object and is threaded into
+  graph.invoke() explicitly. There is no module-level dict and no persistent
+  store; see transcript 08 for the same second turn with no turn 1 before it.
+
