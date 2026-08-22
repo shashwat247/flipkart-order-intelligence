@@ -1,0 +1,27 @@
+# Tested on macOS 15 (Apple Silicon, arm64) with Python 3.13.7.
+# These are the exact versions this project was built and its reported numbers
+# produced with. Everything here is free, local and keyless — no account and no
+# API key is needed at any point, including for Part 3's default MOCK_LLM mode.
+
+# --- Part 1: return-risk scoring pipeline ---
+numpy==2.5.2
+pandas==3.0.5
+scikit-learn==1.9.0
+scipy==1.18.1
+joblib==1.5.3
+
+# --- Part 2: product-image categoriser (transfer learning) ---
+# torch/torchvision resolve to the CPU+MPS build on macOS. On Linux/Windows pip
+# will pick the appropriate wheel; a CUDA build also works unchanged.
+torch==2.13.0
+torchvision==0.28.0
+Pillow==12.3.0
+
+# --- Part 3: support agent (RAG + LangGraph) ---
+sentence-transformers==6.0.0
+faiss-cpu==1.15.0
+langgraph==1.2.11
+langchain-core==1.6.0
+
+# --- tests ---
+pytest==9.1.1
