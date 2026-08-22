@@ -1,0 +1,41 @@
+{
+  "architecture": "resnet18",
+  "head": "Linear(512, 10)",
+  "class_names": [
+    "T-shirt/top",
+    "Trouser",
+    "Pullover",
+    "Dress",
+    "Coat",
+    "Sandal",
+    "Shirt",
+    "Sneaker",
+    "Bag",
+    "Ankle boot"
+  ],
+  "num_classes": 10,
+  "input_size": [
+    224,
+    224
+  ],
+  "input_channels": 3,
+  "source_channels": 1,
+  "channel_handling": "grayscale replicated to 3 channels",
+  "normalization": {
+    "mean": [
+      0.485,
+      0.456,
+      0.406
+    ],
+    "std": [
+      0.229,
+      0.224,
+      0.225
+    ]
+  },
+  "state_dict_file": "product_classifier.pt",
+  "load_snippet": "from part2.model import build_model; import torch; m = build_model(pretrained=False); m.load_state_dict(torch.load('models/product_classifier.pt', map_location='cpu')); m.eval()",
+  "val_accuracy_before_finetuning": 0.8925,
+  "val_accuracy_after_finetuning": 0.8925,
+  "finetune_triggered": false
+}
