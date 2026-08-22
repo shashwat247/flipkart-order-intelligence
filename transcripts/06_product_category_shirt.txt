@@ -1,0 +1,80 @@
+==============================================================================
+FLIPKART ORDER INTELLIGENCE & SUPPORT ASSISTANT — Part 3 transcript
+==============================================================================
+Transcript      : Product-category question on the model's hardest class
+Demonstrates    : Extra — honest confidence on the class Part 2's confusion matrix shows is hardest
+LLM mode        : MOCK_LLM (deterministic; zero API keys; zero outbound network calls)
+Embedding model : all-MiniLM-L6-v2 (local)
+Retrieval       : FAISS IndexFlatIP, top_k=3 chunks
+Groundedness    : refuse a policy answer below cosine 0.45
+Intent routing  : nearest few-shot exemplar, floor 0.25
+==============================================================================
+
+------------------------------------------------------------------------------
+TURN 1
+------------------------------------------------------------------------------
+USER: Classify this product image for me.
+      [attached image: data/sample_images/06_shirt.png]
+
+-- INTENT NODE (few-shot exemplars drive this routing) --
+   nearest few-shot example : "Classify this product image for me."
+   that example's intent    : product_category
+   cosine similarity        : 1.0
+   routing floor            : 0.25 (below floor: False)
+   FINAL INTENT             : product_category
+   runner-up                : "What category is this product photo?" (product_category) @ 0.6473
+   runner-up                : "What item is shown in this uploaded picture?" (product_category) @ 0.559
+   order id                 : None (not available)
+
+-- INPUT GUARDRAIL (prompt-injection scan, runs before any tool) --
+   patterns checked : 13
+   BLOCKED          : False
+
+-- TOOL NODE (real saved artifact, not a stand-in) --
+   {
+     "predicted_class": "Shirt",
+     "predicted_index": 6,
+     "confidence": 0.7941,
+     "confidence_percent": 79.41,
+     "top3": [
+       {
+         "label": "Shirt",
+         "probability": 0.7941
+       },
+       {
+         "label": "T-shirt/top",
+         "probability": 0.1533
+       },
+       {
+         "label": "Pullover",
+         "probability": 0.0273
+       }
+     ],
+     "image_path": "data/sample_images/06_shirt.png",
+     "status": "ok"
+   }
+
+-- GRAPH PATH --
+   guard_node -> intent_node -> tool_node -> response_node
+
+-- FINAL STRUCTURED RESPONSE --
+   {
+     "answer": "This product image is classified as **Shirt** with 79.41% confidence. Next most likely was T-shirt/top at 15.33%. Classified by the saved ResNet-18 transfer-learning model reading the pixels of data/sample_images/06_shirt.png.",
+     "source": "image_classifier_tool",
+     "confidence": 0.7941
+   }
+
+-- CONVERSATION STATE AFTER THIS TURN --
+   turn_index     : 1
+   order_id       : None
+   order_features : none
+   history        : 2 messages
+
+==============================================================================
+NOTE
+==============================================================================
+  Shirt is the weakest class in Part 2's evaluation (per-class recall 0.7300,
+  the lowest of the ten). Its confidence here is visibly lower than the
+  sneaker's in transcript 05 — the tool reports what the model actually
+  produced rather than a flattering constant.
+

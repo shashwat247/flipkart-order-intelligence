@@ -1,0 +1,71 @@
+==============================================================================
+FLIPKART ORDER INTELLIGENCE & SUPPORT ASSISTANT — Part 3 transcript
+==============================================================================
+Transcript      : Return-risk question on a real order (low risk)
+Demonstrates    : Extra — shows the bucket logic separating orders rather than collapsing them into one band
+LLM mode        : MOCK_LLM (deterministic; zero API keys; zero outbound network calls)
+Embedding model : all-MiniLM-L6-v2 (local)
+Retrieval       : FAISS IndexFlatIP, top_k=3 chunks
+Groundedness    : refuse a policy answer below cosine 0.45
+Intent routing  : nearest few-shot exemplar, floor 0.25
+==============================================================================
+
+------------------------------------------------------------------------------
+TURN 1
+------------------------------------------------------------------------------
+USER: Is order 3337 likely to be returned?
+
+-- INTENT NODE (few-shot exemplars drive this routing) --
+   nearest few-shot example : "How likely is this specific order to come back?"
+   that example's intent    : return_risk
+   cosine similarity        : 0.6986
+   routing floor            : 0.25 (below floor: False)
+   FINAL INTENT             : return_risk
+   runner-up                : "Score the return risk for order 1024." (return_risk) @ 0.5807
+   runner-up                : "Flag whether order 5567 is a return risk." (return_risk) @ 0.5723
+   order id                 : 3337 (mentioned in this turn)
+   order lookup             : order 3337 found in order history
+
+-- INPUT GUARDRAIL (prompt-injection scan, runs before any tool) --
+   patterns checked : 13
+   BLOCKED          : False
+
+-- TOOL NODE (real saved artifact, not a stand-in) --
+   {
+     "status": "ok",
+     "return_probability": 0.2772,
+     "return_probability_percent": 27.72,
+     "risk_bucket": "Low",
+     "threshold_rf": 0.5,
+     "bucket_cut_points": {
+       "Low": "probability < 0.50",
+       "Medium": "0.50 <= probability < 0.65",
+       "High": "probability >= 0.65"
+     },
+     "model": "RandomForestClassifier"
+   }
+
+-- GRAPH PATH --
+   guard_node -> intent_node -> tool_node -> response_node
+
+-- FINAL STRUCTURED RESPONSE --
+   {
+     "answer": "Order 3337 has a 27.72% predicted probability of being returned, which is a LOW risk. The buckets are anchored to the model's own F1-maximising threshold t*_rf = 0.50: Low below 0.50, Medium from 0.50 to 0.65, High at or above 0.65. Predicted by the saved tuned Random Forest.",
+     "source": "return_risk_tool",
+     "confidence": 0.7228
+   }
+
+-- CONVERSATION STATE AFTER THIS TURN --
+   turn_index     : 1
+   order_id       : 3337
+   order_features : remembered
+   history        : 2 messages
+
+==============================================================================
+NOTE
+==============================================================================
+  Also a held-out test-split order. Compare with transcript 03: the same tool
+  and the same t*_rf-anchored cut points produce a different bucket, which is
+  the point of anchoring buckets to the model's own threshold instead of a
+  fixed 0.3/0.6 split.
+

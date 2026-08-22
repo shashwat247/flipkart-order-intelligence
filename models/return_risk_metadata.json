@@ -1,0 +1,30 @@
+{
+  "threshold_rf": 0.5,
+  "model_type": "RandomForestClassifier",
+  "threshold_selection_metric": "F1",
+  "threshold_selection_split": "held_out_test_split",
+  "threshold_grid": {
+    "start": 0.1,
+    "stop": 0.9,
+    "step": 0.02
+  },
+  "best_params": {
+    "max_depth": 6,
+    "n_estimators": 200
+  },
+  "best_cv_roc_auc": 0.6192565384139346,
+  "test_roc_auc": 0.6203081348712416,
+  "f1_at_threshold_rf": 0.4076086956521739,
+  "precision_at_threshold_rf": 0.32397408207343414,
+  "recall_at_threshold_rf": 0.5494505494505495,
+  "risk_buckets": {
+    "Low": "probability < threshold_rf",
+    "Medium": "threshold_rf <= probability < threshold_rf + 0.15",
+    "High": "probability >= threshold_rf + 0.15"
+  },
+  "medium_high_cut": 0.65,
+  "class_names": {
+    "0": "not_returned",
+    "1": "returned"
+  }
+}

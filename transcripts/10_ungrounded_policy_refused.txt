@@ -1,0 +1,79 @@
+==============================================================================
+FLIPKART ORDER INTELLIGENCE & SUPPORT ASSISTANT — Part 3 transcript
+==============================================================================
+Transcript      : Ungrounded policy question — refused
+Demonstrates    : Task 9(f) — the output-side groundedness guardrail refuses a policy question no document supports, printing the score and the threshold
+LLM mode        : MOCK_LLM (deterministic; zero API keys; zero outbound network calls)
+Embedding model : all-MiniLM-L6-v2 (local)
+Retrieval       : FAISS IndexFlatIP, top_k=3 chunks
+Groundedness    : refuse a policy answer below cosine 0.45
+Intent routing  : nearest few-shot exemplar, floor 0.25
+==============================================================================
+
+------------------------------------------------------------------------------
+TURN 1
+------------------------------------------------------------------------------
+USER: What is Flipkart's GST registration number?
+
+-- INTENT NODE (few-shot exemplars drive this routing) --
+   nearest few-shot example : "What is the delivery time to a non-metro address?"
+   that example's intent    : policy
+   cosine similarity        : 0.2671
+   routing floor            : 0.25 (below floor: False)
+   FINAL INTENT             : policy
+   runner-up                : "Should we proactively contact the customer about order 88?" (return_risk) @ 0.2235
+   runner-up                : "Is free reverse pickup available for collecting my item?" (policy) @ 0.2151
+   order id                 : None (not available)
+
+-- INPUT GUARDRAIL (prompt-injection scan, runs before any tool) --
+   patterns checked : 13
+   BLOCKED          : False
+
+-- RETRIEVAL NODE (top-k chunks, cosine similarity) --
+   [1] score=0.4379  doc=POL06_prepaid_refund_timeline
+       "A prepaid refund credited to the Flipkart wallet is processed
+       instantly once quality inspection is complete."
+   [2] score=0.2252  doc=POL09_reverse_pickup_eligibility
+       "Reverse pickup is not available at pincodes marked non-serviceable for
+       collection, and in those cases the customer must self-ship the item and
+       claim the courier charge as a reimbursement."
+   [3] score=0.2246  doc=POL10_reverse_pickup_process
+       "A reverse pickup is scheduled within 2 business days of the return
+       request being approved."
+
+   chunks rolled up to unique parent documents:
+     POL06_prepaid_refund_timeline  (best chunk POL06_prepaid_refund_timeline::s02, score 0.4379)
+     POL09_reverse_pickup_eligibility  (best chunk POL09_reverse_pickup_eligibility::s01, score 0.2252)
+     POL10_reverse_pickup_process  (best chunk POL10_reverse_pickup_process::s00, score 0.2246)
+
+-- OUTPUT GUARDRAIL (groundedness check) --
+   best retrieved similarity : 0.4379
+   required minimum          : 0.45
+   GROUNDED                  : False
+   verdict                   : REFUSED — no document supports this question, so the agent declines rather than fabricating a policy
+
+-- GRAPH PATH --
+   guard_node -> intent_node -> retrieval_node -> response_node
+
+-- FINAL STRUCTURED RESPONSE --
+   {
+     "answer": "I can't answer that from Flipkart's policy knowledge base. The closest policy text scored 0.4379 cosine similarity against a required minimum of 0.45, so no document actually covers this question. Rather than guess at a policy, I'd rather tell you it isn't documented \u2014 please escalate to a human agent.",
+     "source": "policy_kb",
+     "confidence": 0.4379
+   }
+
+-- CONVERSATION STATE AFTER THIS TURN --
+   turn_index     : 1
+   order_id       : None
+   order_features : none
+   history        : 2 messages
+
+==============================================================================
+NOTE
+==============================================================================
+  This is a plausible support question that the knowledge base simply does not
+  cover. The best retrieved chunk scored below the required minimum, so the
+  agent refuses and prints both numbers. MOCK_LLM would happily have templated
+  an answer out of the closest chunk — the guardrail is what stops it, and the
+  printed score is what lets you verify that.
+

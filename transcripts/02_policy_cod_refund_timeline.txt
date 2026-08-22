@@ -1,0 +1,71 @@
+==============================================================================
+FLIPKART ORDER INTELLIGENCE & SUPPORT ASSISTANT — Part 3 transcript
+==============================================================================
+Transcript      : Policy question answered via RAG (2 of 2)
+Demonstrates    : Task 9(a) — a second, different policy question exercising a different part of the knowledge base
+LLM mode        : MOCK_LLM (deterministic; zero API keys; zero outbound network calls)
+Embedding model : all-MiniLM-L6-v2 (local)
+Retrieval       : FAISS IndexFlatIP, top_k=3 chunks
+Groundedness    : refuse a policy answer below cosine 0.45
+Intent routing  : nearest few-shot exemplar, floor 0.25
+==============================================================================
+
+------------------------------------------------------------------------------
+TURN 1
+------------------------------------------------------------------------------
+USER: When will I get my money back for a cash on delivery order?
+
+-- INTENT NODE (few-shot exemplars drive this routing) --
+   nearest few-shot example : "How long does a refund take for a prepaid order?"
+   that example's intent    : policy
+   cosine similarity        : 0.6099
+   routing floor            : 0.25 (below floor: False)
+   FINAL INTENT             : policy
+   runner-up                : "Can I cancel my order after it has shipped?" (policy) @ 0.513
+   runner-up                : "How likely is this specific order to come back?" (return_risk) @ 0.4815
+   order id                 : None (not available)
+
+-- INPUT GUARDRAIL (prompt-injection scan, runs before any tool) --
+   patterns checked : 13
+   BLOCKED          : False
+
+-- RETRIEVAL NODE (top-k chunks, cosine similarity) --
+   [1] score=0.7094  doc=POL05_cod_refund_timeline
+       "A refund for a cash-on-delivery order is credited to the customer's
+       bank account within 7 to 10 business days after the returned item
+       passes quality inspection."
+   [2] score=0.6457  doc=POL13_order_cancellation
+       "A cancelled prepaid order is refunded to the original payment method
+       within 5 to 7 business days, and a cancelled cash-on-delivery order
+       needs no refund because no money was collected."
+   [3] score=0.5946  doc=POL05_cod_refund_timeline
+       "Cash-on-delivery refunds take longer than prepaid refunds because the
+       customer must first supply and verify bank account details, as there is
+       no original payment instrument to reverse the money to."
+
+   chunks rolled up to unique parent documents:
+     POL05_cod_refund_timeline  (best chunk POL05_cod_refund_timeline::s00, score 0.7094)
+     POL13_order_cancellation  (best chunk POL13_order_cancellation::s02, score 0.6457)
+
+-- OUTPUT GUARDRAIL (groundedness check) --
+   best retrieved similarity : 0.7094
+   required minimum          : 0.45
+   GROUNDED                  : True
+   verdict                   : answer permitted
+
+-- GRAPH PATH --
+   guard_node -> intent_node -> retrieval_node -> response_node
+
+-- FINAL STRUCTURED RESPONSE --
+   {
+     "answer": "A refund for a cash-on-delivery order is credited to the customer's bank account within 7 to 10 business days after the returned item passes quality inspection. [Source: Cash on Delivery Refund Timeline (POL05_cod_refund_timeline)] [Related policies: Order Cancellation (POL13_order_cancellation)]",
+     "source": "policy_kb",
+     "confidence": 0.7094
+   }
+
+-- CONVERSATION STATE AFTER THIS TURN --
+   turn_index     : 1
+   order_id       : None
+   order_features : none
+   history        : 2 messages
+
