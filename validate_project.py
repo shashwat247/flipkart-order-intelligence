@@ -259,18 +259,32 @@ def main() -> int:  # noqa: C901 - a flat checklist reads better than nested hel
                                cwd=ROOT, capture_output=True, text=True).stdout
     branches = subprocess.run(["git", "branch", "--list"], cwd=ROOT,
                               capture_output=True, text=True).stdout
-    merges = subprocess.run(["git", "log", "--merges", "--oneline"], cwd=ROOT,
-                            capture_output=True, text=True).stdout.strip()
-    feature_commits = subprocess.run(
-        ["git", "log", "--oneline", "main", "--not", "--first-parent", "main"],
-        cwd=ROOT, capture_output=True, text=True).stdout.strip()
+    merge_hashes = subprocess.run(["git", "log", "--merges", "--format=%H"],
+                                  cwd=ROOT, capture_output=True,
+                                  text=True).stdout.split()
+
+    # Commits a merge actually introduced = those on its second parent that are
+    # not already on its first parent, i.e. `git rev-list M^1..M^2`.
+    largest_merge, merged_commits = None, 0
+    for merge_hash in merge_hashes:
+        brought_in = subprocess.run(
+            ["git", "rev-list", f"{merge_hash}^1..{merge_hash}^2"],
+            cwd=ROOT, capture_output=True, text=True).stdout.split()
+        if len(brought_in) > merged_commits:
+            largest_merge, merged_commits = merge_hash, len(brought_in)
+
+    merge_subject = ""
+    if largest_merge:
+        merge_subject = subprocess.run(
+            ["git", "log", "-1", "--format=%h %s", largest_merge],
+            cwd=ROOT, capture_output=True, text=True).stdout.strip()
+
     check("repo", "feature branch exists in history",
           "feature/" in branches or "feature/" in graph_log)
-    check("repo", "feature branch has >= 2 commits",
-          len([c for c in feature_commits.splitlines() if c]) >= 2,
-          f"{len([c for c in feature_commits.splitlines() if c])} commits off first-parent")
-    check("repo", "feature branch merged into main", bool(merges),
-          merges.splitlines()[0] if merges else "no merge commit yet")
+    check("repo", "feature branch has >= 2 commits", merged_commits >= 2,
+          f"{merged_commits} commits brought in by the merge")
+    check("repo", "feature branch merged into main", bool(merge_hashes),
+          merge_subject or "no merge commit yet")
 
     # ------------------------------------------------------------------ pytest
     section("Automated tests")
