@@ -1,0 +1,16 @@
+{
+  "path": "models/return_risk_model.pkl",
+  "loads_ok": true,
+  "t_star_rf": 0.5,
+  "buckets": {
+    "low_max": 0.5,
+    "medium_max": 0.65
+  },
+  "model_type": "RandomForestClassifier",
+  "best_params": {
+    "max_depth": 6,
+    "n_estimators": 200
+  },
+  "test_roc_auc": 0.6203081348712416,
+  "justification_sentence": "t*_rf = 0.50 is the F1-maximising threshold on the tuned Random Forest's own predict_proba over the held-out test split -- never a hardcoded 0.3/0.6 split and never the Logistic Regression's threshold, which lives on a different probability scale."
+}

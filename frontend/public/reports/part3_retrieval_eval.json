@@ -1,0 +1,315 @@
+{
+  "queries": [
+    {
+      "query": "How many days do I have to return a mobile phone?",
+      "relevant": [
+        "POL03_electronics_return_window"
+      ],
+      "retrieved": [
+        "POL03_electronics_return_window",
+        "POL04_home_return_window",
+        "POL10_reverse_pickup_process"
+      ],
+      "hits": [
+        "POL03_electronics_return_window"
+      ],
+      "n_hits": 1,
+      "precision_at_3": 0.3333333333333333,
+      "recall_at_3": 1.0,
+      "rationale": "A mobile phone is electronics; only the electronics document states the 7-day window.",
+      "scores": [
+        0.6429,
+        0.4667,
+        0.4536
+      ],
+      "retrieved_chunks": [
+        {
+          "document_id": "POL03_electronics_return_window",
+          "document_title": "Electronics Return Window",
+          "chunk_text": "Electronics such as mobile phones, laptops, headphones and smart watches can be returned within 7 days of delivery.",
+          "score": 0.6429
+        },
+        {
+          "document_id": "POL04_home_return_window",
+          "document_title": "Home Products Return Window",
+          "chunk_text": "Home and kitchen products such as cookware, bedsheets, curtains and small storage items can be returned within 7 days of delivery.",
+          "score": 0.4667
+        },
+        {
+          "document_id": "POL10_reverse_pickup_process",
+          "document_title": "Reverse Pickup Process and Timeline",
+          "chunk_text": "The returned item reaches the quality-inspection facility within 3 to 5 business days of collection, and the refund clock starts only after that inspection passes.",
+          "score": 0.4536
+        }
+      ]
+    },
+    {
+      "query": "When will I get my money back for a cash on delivery order?",
+      "relevant": [
+        "POL05_cod_refund_timeline",
+        "POL10_reverse_pickup_process"
+      ],
+      "retrieved": [
+        "POL05_cod_refund_timeline",
+        "POL13_order_cancellation",
+        "POL06_prepaid_refund_timeline"
+      ],
+      "hits": [
+        "POL05_cod_refund_timeline"
+      ],
+      "n_hits": 1,
+      "precision_at_3": 0.3333333333333333,
+      "recall_at_3": 0.5,
+      "rationale": "The COD document gives the 7-10 business day timeline; the reverse-pickup process document states that the refund clock only starts after quality inspection, which is needed to answer 'when' correctly.",
+      "scores": [
+        0.7094,
+        0.6457,
+        0.5682
+      ],
+      "retrieved_chunks": [
+        {
+          "document_id": "POL05_cod_refund_timeline",
+          "document_title": "Cash on Delivery Refund Timeline",
+          "chunk_text": "A refund for a cash-on-delivery order is credited to the customer's bank account within 7 to 10 business days after the returned item passes quality inspection.",
+          "score": 0.7094
+        },
+        {
+          "document_id": "POL13_order_cancellation",
+          "document_title": "Order Cancellation",
+          "chunk_text": "A cancelled prepaid order is refunded to the original payment method within 5 to 7 business days, and a cancelled cash-on-delivery order needs no refund because no money was collected.",
+          "score": 0.6457
+        },
+        {
+          "document_id": "POL06_prepaid_refund_timeline",
+          "document_title": "Prepaid Refund Timeline",
+          "chunk_text": "A refund for a prepaid order is returned to the original payment method within 5 to 7 business days after the returned item passes quality inspection.",
+          "score": 0.5682
+        }
+      ]
+    },
+    {
+      "query": "Will a courier come to my house to collect the item I am returning?",
+      "relevant": [
+        "POL09_reverse_pickup_eligibility",
+        "POL10_reverse_pickup_process"
+      ],
+      "retrieved": [
+        "POL10_reverse_pickup_process",
+        "POL09_reverse_pickup_eligibility",
+        "POL04_home_return_window"
+      ],
+      "hits": [
+        "POL10_reverse_pickup_process",
+        "POL09_reverse_pickup_eligibility"
+      ],
+      "n_hits": 2,
+      "precision_at_3": 0.6666666666666666,
+      "recall_at_3": 1.0,
+      "rationale": "Eligibility says whether free collection is available at all; the process document says when it is scheduled and how many attempts are made.",
+      "scores": [
+        0.673,
+        0.53,
+        0.4674
+      ],
+      "retrieved_chunks": [
+        {
+          "document_id": "POL10_reverse_pickup_process",
+          "document_title": "Reverse Pickup Process and Timeline",
+          "chunk_text": "The customer must hand the item over in its original packaging along with any invoice or accessory that came with it, and the courier will not collect an item that fails this check at the door.",
+          "score": 0.673
+        },
+        {
+          "document_id": "POL09_reverse_pickup_eligibility",
+          "document_title": "Reverse Pickup Eligibility",
+          "chunk_text": "Reverse pickup means a courier collects the returned item from the customer's address at no charge, and it is available on most apparel, footwear and electronics orders at serviceable pincodes.",
+          "score": 0.53
+        },
+        {
+          "document_id": "POL04_home_return_window",
+          "document_title": "Home Products Return Window",
+          "chunk_text": "Home and kitchen products such as cookware, bedsheets, curtains and small storage items can be returned within 7 days of delivery.",
+          "score": 0.4674
+        }
+      ]
+    },
+    {
+      "query": "How long does delivery take to a remote address?",
+      "relevant": [
+        "POL07_delivery_sla"
+      ],
+      "retrieved": [
+        "POL07_delivery_sla",
+        "POL08_delayed_delivery",
+        "POL12_wrong_product_received"
+      ],
+      "hits": [
+        "POL07_delivery_sla"
+      ],
+      "n_hits": 1,
+      "precision_at_3": 0.3333333333333333,
+      "recall_at_3": 1.0,
+      "rationale": "The delivery SLA document is the only one that distinguishes metro from non-metro/remote commitments.",
+      "scores": [
+        0.7741,
+        0.5924,
+        0.4465
+      ],
+      "retrieved_chunks": [
+        {
+          "document_id": "POL07_delivery_sla",
+          "document_title": "Standard Delivery Service Level Agreement",
+          "chunk_text": "Standard delivery to a non-metro or remote address is committed within 4 to 7 business days from dispatch.",
+          "score": 0.7741
+        },
+        {
+          "document_id": "POL08_delayed_delivery",
+          "document_title": "Delayed Delivery Compensation",
+          "chunk_text": "An order is treated as delayed once it passes its committed delivery date by more than 2 business days.",
+          "score": 0.5924
+        },
+        {
+          "document_id": "POL12_wrong_product_received",
+          "document_title": "Wrong Product Received",
+          "chunk_text": "A customer who receives an item that does not match what they ordered must report it within 7 days of delivery.",
+          "score": 0.4465
+        }
+      ]
+    },
+    {
+      "query": "Can I return a used lipstick?",
+      "relevant": [
+        "POL15_non_returnable_items"
+      ],
+      "retrieved": [
+        "POL04_home_return_window",
+        "POL15_non_returnable_items",
+        "POL14_exchange_policy"
+      ],
+      "hits": [
+        "POL15_non_returnable_items"
+      ],
+      "n_hits": 1,
+      "precision_at_3": 0.3333333333333333,
+      "recall_at_3": 1.0,
+      "rationale": "Cosmetics are named in the non-returnable categories for hygiene reasons.",
+      "scores": [
+        0.4584,
+        0.4015,
+        0.3848
+      ],
+      "retrieved_chunks": [
+        {
+          "document_id": "POL04_home_return_window",
+          "document_title": "Home Products Return Window",
+          "chunk_text": "A home product return is accepted only if the item is unused and its protective seals are intact.",
+          "score": 0.4584
+        },
+        {
+          "document_id": "POL15_non_returnable_items",
+          "document_title": "Non-Returnable Items",
+          "chunk_text": "A non-returnable item is still eligible for a refund or replacement if it arrives damaged, defective or is the wrong product, since those are seller errors rather than a change of mind.",
+          "score": 0.4015
+        },
+        {
+          "document_id": "POL14_exchange_policy",
+          "document_title": "Exchange Policy",
+          "chunk_text": "An exchange is only possible while the requested replacement size or colour is in stock, and the request converts to a refund automatically if it is not.",
+          "score": 0.3848
+        }
+      ]
+    },
+    {
+      "query": "My order arrived broken. What should I do?",
+      "relevant": [
+        "POL11_damaged_product"
+      ],
+      "retrieved": [
+        "POL11_damaged_product",
+        "POL12_wrong_product_received",
+        "POL10_reverse_pickup_process"
+      ],
+      "hits": [
+        "POL11_damaged_product"
+      ],
+      "n_hits": 1,
+      "precision_at_3": 0.3333333333333333,
+      "recall_at_3": 1.0,
+      "rationale": "The damaged/defective document covers the 48-hour reporting window, the photograph requirement and the replacement-or-refund remedy.",
+      "scores": [
+        0.478,
+        0.4598,
+        0.4277
+      ],
+      "retrieved_chunks": [
+        {
+          "document_id": "POL11_damaged_product",
+          "document_title": "Damaged or Defective Product",
+          "chunk_text": "A product that arrives physically damaged or dead on arrival must be reported within 48 hours of delivery.",
+          "score": 0.478
+        },
+        {
+          "document_id": "POL12_wrong_product_received",
+          "document_title": "Wrong Product Received",
+          "chunk_text": "A customer who receives an item that does not match what they ordered must report it within 7 days of delivery.",
+          "score": 0.4598
+        },
+        {
+          "document_id": "POL10_reverse_pickup_process",
+          "document_title": "Reverse Pickup Process and Timeline",
+          "chunk_text": "The customer must hand the item over in its original packaging along with any invoice or accessory that came with it, and the courier will not collect an item that fails this check at the door.",
+          "score": 0.4277
+        }
+      ]
+    },
+    {
+      "query": "Can I swap my shoes for a bigger size?",
+      "relevant": [
+        "POL02_footwear_return_window",
+        "POL14_exchange_policy"
+      ],
+      "retrieved": [
+        "POL02_footwear_return_window",
+        "POL14_exchange_policy",
+        "POL04_home_return_window"
+      ],
+      "hits": [
+        "POL02_footwear_return_window",
+        "POL14_exchange_policy"
+      ],
+      "n_hits": 2,
+      "precision_at_3": 0.6666666666666666,
+      "recall_at_3": 1.0,
+      "rationale": "The exchange document defines size swaps; the footwear document confirms footwear is eligible and gives the matching 10-day window.",
+      "scores": [
+        0.537,
+        0.3878,
+        0.3323
+      ],
+      "retrieved_chunks": [
+        {
+          "document_id": "POL02_footwear_return_window",
+          "document_title": "Footwear Return Window",
+          "chunk_text": "Footwear ordered in the wrong size is eligible for a free size exchange instead of a refund if the replacement size is in stock.",
+          "score": 0.537
+        },
+        {
+          "document_id": "POL14_exchange_policy",
+          "document_title": "Exchange Policy",
+          "chunk_text": "An exchange swaps a delivered item for a different size or colour of the same product and is available on apparel and footwear within the same 10 day window as a return.",
+          "score": 0.3878
+        },
+        {
+          "document_id": "POL04_home_return_window",
+          "document_title": "Home Products Return Window",
+          "chunk_text": "Home furnishing items that were customised or cut to a requested size cannot be returned.",
+          "score": 0.3323
+        }
+      ]
+    }
+  ],
+  "mean_precision_at_3": 0.42857142857142855,
+  "mean_recall_at_3": 0.9285714285714286,
+  "k": 3,
+  "top_k_chunks": 3,
+  "similarity_threshold": 0.45
+}

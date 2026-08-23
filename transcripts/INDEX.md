@@ -15,7 +15,7 @@ output. Re-running the command reproduces them byte for byte.
 | [`06_product_category_shirt.txt`](06_product_category_shirt.txt) | Extra — image classifier | `image_classifier_tool` | 0.7941 |
 | [`07_multiturn_state_carried.txt`](07_multiturn_state_carried.txt) | Task 9(d) multi-turn state | `return_risk_tool` | 0.6462 |
 | [`08_fresh_conversation_state_reset.txt`](08_fresh_conversation_state_reset.txt) | Task 9(d) fresh-conversation reset | `return_risk_tool` | 0.0 |
-| [`09_prompt_injection_blocked.txt`](09_prompt_injection_blocked.txt) | Task 9(e) injection blocked | `return_risk_tool` | 1.0 |
+| [`09_prompt_injection_blocked.txt`](09_prompt_injection_blocked.txt) | Task 9(e) injection blocked | `policy_kb` | 1.0 |
 | [`10_ungrounded_policy_refused.txt`](10_ungrounded_policy_refused.txt) | Task 9(f) ungrounded refusal | `policy_kb` | 0.4379 |
 
 ## Required coverage (Task 9)

@@ -25,3 +25,15 @@ langchain-core==1.6.0
 
 # --- tests ---
 pytest==9.1.1
+
+# --- frontend: Flipkart Intelligence & Support Center (Streamlit) ---
+# A thin UI layer over the real Part 1/2/3 artifacts; see streamlit_app/app.py.
+streamlit==1.62.0
+matplotlib==3.11.1
+plotly==6.9.0
+
+# --- backend: HTTP API the React console talks to (backend/api.py) ---
+# Transport only; the agent and both models stay exactly as Parts 1-3 built
+# them. Still keyless and offline at answer time.
+fastapi==0.122.0
+uvicorn[standard]==0.42.0

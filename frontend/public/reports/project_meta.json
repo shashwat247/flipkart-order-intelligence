@@ -1,0 +1,87 @@
+{
+  "repo": "flipkart-order-intelligence",
+  "commit": "b41d207bbeb4c434f012511f31ed80732b12a3a7",
+  "short_commit": "b41d207",
+  "branch": "main",
+  "commits": [
+    {
+      "hash": "b41d207bbeb4c434f012511f31ed80732b12a3a7",
+      "short_hash": "b41d207",
+      "author": "shashwatsahu27",
+      "date": "2026-08-22",
+      "subject": "initial commit",
+      "parents": [
+        "20dd9be54b78e645b23ed0096047bcd7f1e54345"
+      ]
+    },
+    {
+      "hash": "20dd9be54b78e645b23ed0096047bcd7f1e54345",
+      "short_hash": "20dd9be",
+      "author": "shashwatsahu27",
+      "date": "2026-08-22",
+      "subject": "Fix the feature-branch commit count in validate_project.py",
+      "parents": [
+        "a0ced3dffc63e021e54f9a9cec8f7b0a321410f5"
+      ]
+    },
+    {
+      "hash": "a0ced3dffc63e021e54f9a9cec8f7b0a321410f5",
+      "short_hash": "a0ced3d",
+      "author": "shashwatsahu27",
+      "date": "2026-08-22",
+      "subject": "Merge feature/flipkart-assistant into main",
+      "parents": [
+        "40b314834a00360db39f844c32d67b0f27bb4222",
+        "1dc4dcf3fa840cdcc9b5d8434fb5033c5ca4ad37"
+      ]
+    },
+    {
+      "hash": "1dc4dcf3fa840cdcc9b5d8434fb5033c5ca4ad37",
+      "short_hash": "1dc4dcf",
+      "author": "shashwatsahu27",
+      "date": "2026-08-22",
+      "subject": "Tests, end-to-end validation and the project README",
+      "parents": [
+        "95214cc6150f1f25bfad6f3d3b2d6ada69f45956"
+      ]
+    },
+    {
+      "hash": "95214cc6150f1f25bfad6f3d3b2d6ada69f45956",
+      "short_hash": "95214cc",
+      "author": "shashwatsahu27",
+      "date": "2026-08-22",
+      "subject": "Part 3: LangGraph support agent with RAG, real tools and guardrails",
+      "parents": [
+        "aae928481e7a5dfd906312b812c5c3cc12b48573"
+      ]
+    },
+    {
+      "hash": "aae928481e7a5dfd906312b812c5c3cc12b48573",
+      "short_hash": "aae9284",
+      "author": "shashwatsahu27",
+      "date": "2026-08-22",
+      "subject": "Part 2: ResNet-18 transfer-learning product categoriser",
+      "parents": [
+        "9a1312cfa0ba24a3ceeb9cd6e4f268d2a5e1fa65"
+      ]
+    },
+    {
+      "hash": "40b314834a00360db39f844c32d67b0f27bb4222",
+      "short_hash": "40b3148",
+      "author": "shashwatsahu27",
+      "date": "2026-08-22",
+      "subject": "Scaffold project: gitignore, pinned requirements, README placeholder",
+      "parents": []
+    },
+    {
+      "hash": "9a1312cfa0ba24a3ceeb9cd6e4f268d2a5e1fa65",
+      "short_hash": "9a1312c",
+      "author": "shashwatsahu27",
+      "date": "2026-08-22",
+      "subject": "Part 1: return-risk scoring pipeline",
+      "parents": [
+        "40b314834a00360db39f844c32d67b0f27bb4222"
+      ]
+    }
+  ]
+}

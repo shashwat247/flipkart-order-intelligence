@@ -1,0 +1,5 @@
+{
+  "accuracy": 0.7725,
+  "f1_positive": 0.0,
+  "note": "A DummyClassifier predicting the majority class scores 77.25% accuracy while catching zero returns (F1 for returned=1 is 0.0000) -- accuracy is not the metric that matters here."
+}

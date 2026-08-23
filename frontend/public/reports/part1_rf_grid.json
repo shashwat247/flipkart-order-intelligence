@@ -1,0 +1,47 @@
+{
+  "cells": [
+    {
+      "n_estimators": 100,
+      "max_depth": 6,
+      "cv_roc_auc": 0.6186,
+      "cv_roc_auc_std": 0.0172
+    },
+    {
+      "n_estimators": 200,
+      "max_depth": 6,
+      "cv_roc_auc": 0.6193,
+      "cv_roc_auc_std": 0.0186
+    },
+    {
+      "n_estimators": 100,
+      "max_depth": 10,
+      "cv_roc_auc": 0.6059,
+      "cv_roc_auc_std": 0.0207
+    },
+    {
+      "n_estimators": 200,
+      "max_depth": 10,
+      "cv_roc_auc": 0.6071,
+      "cv_roc_auc_std": 0.0196
+    },
+    {
+      "n_estimators": 100,
+      "max_depth": null,
+      "cv_roc_auc": 0.5954,
+      "cv_roc_auc_std": 0.0218
+    },
+    {
+      "n_estimators": 200,
+      "max_depth": null,
+      "cv_roc_auc": 0.593,
+      "cv_roc_auc_std": 0.0219
+    }
+  ],
+  "best_params": {
+    "max_depth": 6,
+    "n_estimators": 200
+  },
+  "best_cv_roc_auc": 0.6192565384139346,
+  "test_roc_auc": 0.6203081348712416,
+  "auc_gap": 0.0010515964573070136
+}

@@ -1,0 +1,69 @@
+@import "@fontsource/bricolage-grotesque/700.css";
+@import "@fontsource/bricolage-grotesque/800.css";
+@import "@fontsource/public-sans/400.css";
+@import "@fontsource/public-sans/500.css";
+@import "@fontsource/public-sans/600.css";
+@import "@fontsource/ibm-plex-mono/400.css";
+@import "@fontsource/ibm-plex-mono/500.css";
+@import "@fontsource/ibm-plex-mono/600.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  @apply bg-ink-900 text-paper font-body;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+/* Data thesis: prose is human, numbers are machine. Every numeral column
+   aligns because every mono usage is tabular. */
+.font-mono {
+  font-variant-numeric: tabular-nums;
+}
+
+/* No shadows anywhere — surfaces are separated by hairlines and one step of
+   --ink-700 elevation only. */
+* {
+  box-shadow: none !important;
+}
+
+::selection {
+  background: theme("colors.signal");
+  color: theme("colors.ink.900");
+}
+
+/* Visible keyboard focus rings everywhere, never suppressed. */
+:focus-visible {
+  outline: 2px solid theme("colors.signal");
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: theme("colors.ink.900");
+}
+::-webkit-scrollbar-thumb {
+  background: theme("colors.line");
+  border-radius: 4px;
+}

@@ -67,7 +67,7 @@ USER: What category is this product photo?
 -- CONVERSATION STATE AFTER THIS TURN --
    turn_index     : 1
    order_id       : None
-   order_features : none
+   order_features : remembered
    history        : 2 messages
 
 ==============================================================================

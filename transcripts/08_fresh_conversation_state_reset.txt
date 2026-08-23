@@ -22,7 +22,7 @@ USER: What is its return risk?
    routing floor            : 0.25 (below floor: False)
    FINAL INTENT             : return_risk
    runner-up                : "Score the return risk for order 1024." (return_risk) @ 0.6104
-   runner-up                : "Flag whether order 5567 is a return risk." (return_risk) @ 0.5395
+   runner-up                : "Explain the electronics return policy like I'm five." (explanation) @ 0.5817
    order id                 : None (not available)
 
 -- INPUT GUARDRAIL (prompt-injection scan, runs before any tool) --
@@ -33,7 +33,7 @@ USER: What is its return risk?
    {
      "status": "missing_input",
      "what": "an order to score",
-     "detail": "Tell me an order id (for example 'order 4021') or supply the order's features."
+     "detail": "Tell me an order id (for example 'order 4021') or describe the order \u2014 its category, price, payment method and so on."
    }
 
 -- GRAPH PATH --
@@ -41,7 +41,7 @@ USER: What is its return risk?
 
 -- FINAL STRUCTURED RESPONSE --
    {
-     "answer": "I need an order to score before I can answer that. Tell me an order id (for example 'order 4021') or supply the order's features. I won't estimate it, because a number I made up would look exactly like a number the model produced.",
+     "answer": "I need an order to score before I can answer that. Tell me an order id (for example 'order 4021') or describe the order \u2014 its category, price, payment method and so on. I won't estimate it, because a number I made up would look exactly like a number the model produced.",
      "source": "return_risk_tool",
      "confidence": 0.0
    }

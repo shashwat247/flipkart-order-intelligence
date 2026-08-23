@@ -1,0 +1,125 @@
+{
+  "device": "mps",
+  "backbone": "resnet18 (torchvision, ImageNet1K_V1 weights)",
+  "strategy": "freeze conv1/bn1/layer1-4, train new Linear(512,10) head",
+  "feature_caching": "frozen-backbone features cached once to data/feature_cache/",
+  "optimizer": "Adam",
+  "head_learning_rate": 0.001,
+  "head_batch_size": 256,
+  "head_epochs": 15,
+  "head_history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.71149,
+      "val_accuracy": 0.8516,
+      "seconds": 2.51
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.40658,
+      "val_accuracy": 0.8643,
+      "seconds": 0.33
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.36736,
+      "val_accuracy": 0.8719,
+      "seconds": 0.34
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.34448,
+      "val_accuracy": 0.8742,
+      "seconds": 0.31
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.33237,
+      "val_accuracy": 0.8813,
+      "seconds": 0.31
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.32079,
+      "val_accuracy": 0.8811,
+      "seconds": 0.32
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.31442,
+      "val_accuracy": 0.8831,
+      "seconds": 0.32
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.3063,
+      "val_accuracy": 0.8847,
+      "seconds": 0.31
+    },
+    {
+      "epoch": 9,
+      "train_loss": 0.30225,
+      "val_accuracy": 0.8859,
+      "seconds": 0.32
+    },
+    {
+      "epoch": 10,
+      "train_loss": 0.29656,
+      "val_accuracy": 0.8867,
+      "seconds": 0.31
+    },
+    {
+      "epoch": 11,
+      "train_loss": 0.29283,
+      "val_accuracy": 0.889,
+      "seconds": 0.3
+    },
+    {
+      "epoch": 12,
+      "train_loss": 0.28889,
+      "val_accuracy": 0.8879,
+      "seconds": 0.31
+    },
+    {
+      "epoch": 13,
+      "train_loss": 0.28609,
+      "val_accuracy": 0.8886,
+      "seconds": 0.32
+    },
+    {
+      "epoch": 14,
+      "train_loss": 0.28331,
+      "val_accuracy": 0.8901,
+      "seconds": 0.31
+    },
+    {
+      "epoch": 15,
+      "train_loss": 0.28106,
+      "val_accuracy": 0.8925,
+      "seconds": 0.32
+    }
+  ],
+  "finetune_triggered": false,
+  "finetune_trigger_threshold": 0.8,
+  "val_accuracy_before_finetuning": 0.8925,
+  "val_accuracy_after_finetuning": 0.8925,
+  "finetune_history": [],
+  "total_parameters": 11181642,
+  "input_size": [
+    224,
+    224
+  ],
+  "normalization": {
+    "mean": [
+      0.485,
+      0.456,
+      0.406
+    ],
+    "std": [
+      0.229,
+      0.224,
+      0.225
+    ]
+  },
+  "channel_handling": "grayscale replicated to 3 channels"
+}

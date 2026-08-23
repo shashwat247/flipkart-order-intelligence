@@ -1,0 +1,249 @@
+{
+  "path": "models/product_classifier.pt",
+  "loads_ok": true,
+  "architecture": "resnet18",
+  "head": "Linear(512, 10)",
+  "load_snippet": "from part2.model import build_model; import torch; m = build_model(pretrained=False); m.load_state_dict(torch.load('models/product_classifier.pt', map_location='cpu')); m.eval()",
+  "sample_images": [
+    {
+      "file": "00_t_shirt_top.png",
+      "true_label": "T-shirt/top",
+      "true_index": 0,
+      "source": "Fashion-MNIST test split",
+      "test_split_index": 19,
+      "predicted_class": "T-shirt/top",
+      "confidence": 0.9879,
+      "top3": [
+        {
+          "label": "T-shirt/top",
+          "probability": 0.9879
+        },
+        {
+          "label": "Shirt",
+          "probability": 0.0102
+        },
+        {
+          "label": "Dress",
+          "probability": 0.0018
+        }
+      ],
+      "agrees_with_true_label": true
+    },
+    {
+      "file": "01_trouser.png",
+      "true_label": "Trouser",
+      "true_index": 1,
+      "source": "Fashion-MNIST test split",
+      "test_split_index": 2,
+      "predicted_class": "Trouser",
+      "confidence": 0.9997,
+      "top3": [
+        {
+          "label": "Trouser",
+          "probability": 0.9997
+        },
+        {
+          "label": "Dress",
+          "probability": 0.0002
+        },
+        {
+          "label": "Bag",
+          "probability": 0.0
+        }
+      ],
+      "agrees_with_true_label": true
+    },
+    {
+      "file": "02_pullover.png",
+      "true_label": "Pullover",
+      "true_index": 2,
+      "source": "Fashion-MNIST test split",
+      "test_split_index": 1,
+      "predicted_class": "Pullover",
+      "confidence": 0.9817,
+      "top3": [
+        {
+          "label": "Pullover",
+          "probability": 0.9817
+        },
+        {
+          "label": "Coat",
+          "probability": 0.0097
+        },
+        {
+          "label": "T-shirt/top",
+          "probability": 0.0052
+        }
+      ],
+      "agrees_with_true_label": true
+    },
+    {
+      "file": "03_dress.png",
+      "true_label": "Dress",
+      "true_index": 3,
+      "source": "Fashion-MNIST test split",
+      "test_split_index": 13,
+      "predicted_class": "Dress",
+      "confidence": 0.9744,
+      "top3": [
+        {
+          "label": "Dress",
+          "probability": 0.9744
+        },
+        {
+          "label": "Trouser",
+          "probability": 0.0129
+        },
+        {
+          "label": "T-shirt/top",
+          "probability": 0.007
+        }
+      ],
+      "agrees_with_true_label": true
+    },
+    {
+      "file": "04_coat.png",
+      "true_label": "Coat",
+      "true_index": 4,
+      "source": "Fashion-MNIST test split",
+      "test_split_index": 6,
+      "predicted_class": "Coat",
+      "confidence": 0.8114,
+      "top3": [
+        {
+          "label": "Coat",
+          "probability": 0.8114
+        },
+        {
+          "label": "Pullover",
+          "probability": 0.108
+        },
+        {
+          "label": "Shirt",
+          "probability": 0.0487
+        }
+      ],
+      "agrees_with_true_label": true
+    },
+    {
+      "file": "05_sandal.png",
+      "true_label": "Sandal",
+      "true_index": 5,
+      "source": "Fashion-MNIST test split",
+      "test_split_index": 8,
+      "predicted_class": "Sandal",
+      "confidence": 0.9978,
+      "top3": [
+        {
+          "label": "Sandal",
+          "probability": 0.9978
+        },
+        {
+          "label": "Sneaker",
+          "probability": 0.0012
+        },
+        {
+          "label": "Bag",
+          "probability": 0.0007
+        }
+      ],
+      "agrees_with_true_label": true
+    },
+    {
+      "file": "06_shirt.png",
+      "true_label": "Shirt",
+      "true_index": 6,
+      "source": "Fashion-MNIST test split",
+      "test_split_index": 4,
+      "predicted_class": "Shirt",
+      "confidence": 0.7941,
+      "top3": [
+        {
+          "label": "Shirt",
+          "probability": 0.7941
+        },
+        {
+          "label": "T-shirt/top",
+          "probability": 0.1533
+        },
+        {
+          "label": "Pullover",
+          "probability": 0.0273
+        }
+      ],
+      "agrees_with_true_label": true
+    },
+    {
+      "file": "07_sneaker.png",
+      "true_label": "Sneaker",
+      "true_index": 7,
+      "source": "Fashion-MNIST test split",
+      "test_split_index": 9,
+      "predicted_class": "Sneaker",
+      "confidence": 0.9987,
+      "top3": [
+        {
+          "label": "Sneaker",
+          "probability": 0.9987
+        },
+        {
+          "label": "Ankle boot",
+          "probability": 0.0011
+        },
+        {
+          "label": "Sandal",
+          "probability": 0.0003
+        }
+      ],
+      "agrees_with_true_label": true
+    },
+    {
+      "file": "08_bag.png",
+      "true_label": "Bag",
+      "true_index": 8,
+      "source": "Fashion-MNIST test split",
+      "test_split_index": 18,
+      "predicted_class": "Bag",
+      "confidence": 0.9999,
+      "top3": [
+        {
+          "label": "Bag",
+          "probability": 0.9999
+        },
+        {
+          "label": "Shirt",
+          "probability": 0.0001
+        },
+        {
+          "label": "Ankle boot",
+          "probability": 0.0
+        }
+      ],
+      "agrees_with_true_label": true
+    },
+    {
+      "file": "09_ankle_boot.png",
+      "true_label": "Ankle boot",
+      "true_index": 9,
+      "source": "Fashion-MNIST test split",
+      "test_split_index": 0,
+      "predicted_class": "Ankle boot",
+      "confidence": 0.9638,
+      "top3": [
+        {
+          "label": "Ankle boot",
+          "probability": 0.9638
+        },
+        {
+          "label": "Sneaker",
+          "probability": 0.0357
+        },
+        {
+          "label": "Sandal",
+          "probability": 0.0005
+        }
+      ],
+      "agrees_with_true_label": true
+    }
+  ]
+}

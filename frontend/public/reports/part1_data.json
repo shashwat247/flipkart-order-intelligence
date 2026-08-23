@@ -1,0 +1,129 @@
+{
+  "rows": 6000,
+  "columns": 13,
+  "column_names": [
+    "order_id",
+    "product_category",
+    "price_inr",
+    "discount_pct",
+    "payment_method",
+    "customer_tenure_days",
+    "num_previous_orders",
+    "num_previous_returns",
+    "delivery_distance_km",
+    "delivery_days",
+    "is_weekend_order",
+    "rating_given",
+    "returned"
+  ],
+  "return_rate": 0.2275,
+  "rating_missing_pct": 13.05,
+  "generator": {
+    "seed": 42,
+    "n_rows": 6000,
+    "category_probs": [
+      {
+        "category": "Apparel",
+        "probability": 0.32
+      },
+      {
+        "category": "Electronics",
+        "probability": 0.22
+      },
+      {
+        "category": "Home",
+        "probability": 0.18
+      },
+      {
+        "category": "Footwear",
+        "probability": 0.18
+      },
+      {
+        "category": "Beauty",
+        "probability": 0.1
+      }
+    ],
+    "payment_probs": [
+      {
+        "payment_method": "COD",
+        "probability": 0.42
+      },
+      {
+        "payment_method": "Prepaid_Card",
+        "probability": 0.24
+      },
+      {
+        "payment_method": "Prepaid_UPI",
+        "probability": 0.24
+      },
+      {
+        "payment_method": "Wallet",
+        "probability": 0.1
+      }
+    ]
+  },
+  "by_category": [
+    {
+      "label": "Apparel",
+      "orders": 1979,
+      "returns": 523,
+      "return_rate": 0.26427488630621526
+    },
+    {
+      "label": "Footwear",
+      "orders": 1071,
+      "returns": 278,
+      "return_rate": 0.25957049486461253
+    },
+    {
+      "label": "Beauty",
+      "orders": 579,
+      "returns": 116,
+      "return_rate": 0.2003454231433506
+    },
+    {
+      "label": "Home",
+      "orders": 1055,
+      "returns": 202,
+      "return_rate": 0.19146919431279621
+    },
+    {
+      "label": "Electronics",
+      "orders": 1316,
+      "returns": 246,
+      "return_rate": 0.18693009118541035
+    }
+  ],
+  "by_payment": [
+    {
+      "label": "COD",
+      "orders": 2501,
+      "returns": 769,
+      "return_rate": 0.3074770091963215
+    },
+    {
+      "label": "Wallet",
+      "orders": 594,
+      "returns": 106,
+      "return_rate": 0.17845117845117844
+    },
+    {
+      "label": "Prepaid_UPI",
+      "orders": 1448,
+      "returns": 245,
+      "return_rate": 0.1691988950276243
+    },
+    {
+      "label": "Prepaid_Card",
+      "orders": 1457,
+      "returns": 245,
+      "return_rate": 0.16815374056280027
+    }
+  ],
+  "missingness": {
+    "verdict": "MAR",
+    "cod_missing_rate": 0.22830867652938824,
+    "non_cod_missing_rate": 0.06058873963989711,
+    "justification": "rating_given's missing rate depends only on payment_method (an observed column) -- COD orders drop their rating 3.77x as often as non-COD orders -- and the mask is drawn independently of the unobserved rating value itself, which is the definition of missing-at-random."
+  }
+}

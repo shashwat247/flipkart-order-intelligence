@@ -1,0 +1,99 @@
+{
+  "return_risk_examples": [
+    {
+      "order_id": 3337,
+      "features": {
+        "price_inr": 28328.0,
+        "discount_pct": 18.1,
+        "customer_tenure_days": 226,
+        "num_previous_orders": 4,
+        "num_previous_returns": 0,
+        "delivery_distance_km": 110.7,
+        "delivery_days": 2,
+        "is_weekend_order": 0,
+        "rating_given": 2.0,
+        "product_category": "Electronics",
+        "payment_method": "Prepaid_Card"
+      },
+      "return_probability": 0.27715253804101675,
+      "actual_returned": false
+    },
+    {
+      "order_id": 4103,
+      "features": {
+        "price_inr": 2668.0,
+        "discount_pct": 6.8,
+        "customer_tenure_days": 51,
+        "num_previous_orders": 0,
+        "num_previous_returns": 0,
+        "delivery_distance_km": 390.1,
+        "delivery_days": 7,
+        "is_weekend_order": 0,
+        "rating_given": 1.0,
+        "product_category": "Home",
+        "payment_method": "Wallet"
+      },
+      "return_probability": 0.39913489841451955,
+      "actual_returned": false
+    },
+    {
+      "order_id": 2080,
+      "features": {
+        "price_inr": 1443.0,
+        "discount_pct": 35.6,
+        "customer_tenure_days": 9,
+        "num_previous_orders": 0,
+        "num_previous_returns": 0,
+        "delivery_distance_km": 134.9,
+        "delivery_days": 1,
+        "is_weekend_order": 0,
+        "rating_given": 5.0,
+        "product_category": "Apparel",
+        "payment_method": "Wallet"
+      },
+      "return_probability": 0.4624396687928379,
+      "actual_returned": true
+    },
+    {
+      "order_id": 4264,
+      "features": {
+        "price_inr": 674.0,
+        "discount_pct": 34.4,
+        "customer_tenure_days": 149,
+        "num_previous_orders": 2,
+        "num_previous_returns": 0,
+        "delivery_distance_km": 576.4,
+        "delivery_days": 3,
+        "is_weekend_order": 0,
+        "rating_given": 5.0,
+        "product_category": "Footwear",
+        "payment_method": "COD"
+      },
+      "return_probability": 0.566719268000018,
+      "actual_returned": false
+    },
+    {
+      "order_id": 1790,
+      "features": {
+        "price_inr": 1531.0,
+        "discount_pct": 26.9,
+        "customer_tenure_days": 372,
+        "num_previous_orders": 8,
+        "num_previous_returns": 3,
+        "delivery_distance_km": 61.7,
+        "delivery_days": 7,
+        "is_weekend_order": 1,
+        "rating_given": 1.0,
+        "product_category": "Apparel",
+        "payment_method": "COD"
+      },
+      "return_probability": 0.6877425570846182,
+      "actual_returned": false
+    }
+  ],
+  "threshold_rf": 0.5,
+  "function_signature": "check_return_risk(order_features: dict) -> dict",
+  "artifact_path": "models/return_risk_model.pkl",
+  "image_function_signature": "classify_product_image(image_path: str) -> dict",
+  "image_artifact_path": "models/product_classifier.pt"
+}

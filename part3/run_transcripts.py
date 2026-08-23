@@ -74,7 +74,7 @@ def render_turn(result: dict, turn_label: str, query: str,
         lines.append(f"   fallback                 : {evidence['fallback_reason']}")
     for runner in evidence.get("runners_up", []):
         lines.append(f"   runner-up                : \"{runner['example']}\" "
-                     f"({runner['intent']}) @ {runner['similarity']}")
+                     f"({runner['fine_intent']}) @ {runner['similarity']}")
     if evidence.get("order_id_source"):
         lines.append(f"   order id                 : {result.get('order_id')} "
                      f"({evidence['order_id_source']})")

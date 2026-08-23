@@ -16,13 +16,13 @@ TURN 1
 USER: When will I get my money back for a cash on delivery order?
 
 -- INTENT NODE (few-shot exemplars drive this routing) --
-   nearest few-shot example : "How long does a refund take for a prepaid order?"
-   that example's intent    : policy
-   cosine similarity        : 0.6099
+   nearest few-shot example : "How do I get my money back for a cancelled order?"
+   that example's intent    : refund
+   cosine similarity        : 0.6723
    routing floor            : 0.25 (below floor: False)
    FINAL INTENT             : policy
-   runner-up                : "Can I cancel my order after it has shipped?" (policy) @ 0.513
-   runner-up                : "How likely is this specific order to come back?" (return_risk) @ 0.4815
+   runner-up                : "How long does a refund take for a prepaid order?" (policy) @ 0.6099
+   runner-up                : "When will my refund be credited to my account?" (refund) @ 0.5708
    order id                 : None (not available)
 
 -- INPUT GUARDRAIL (prompt-injection scan, runs before any tool) --
@@ -58,7 +58,7 @@ USER: When will I get my money back for a cash on delivery order?
 
 -- FINAL STRUCTURED RESPONSE --
    {
-     "answer": "A refund for a cash-on-delivery order is credited to the customer's bank account within 7 to 10 business days after the returned item passes quality inspection. [Source: Cash on Delivery Refund Timeline (POL05_cod_refund_timeline)] [Related policies: Order Cancellation (POL13_order_cancellation)]",
+     "answer": "Based on the policy documents I found: A refund for a cash-on-delivery order is credited to the customer's bank account within 7 to 10 business days after the returned item passes quality inspection. [Source: Cash on Delivery Refund Timeline (POL05_cod_refund_timeline)] [Related policies: Order Cancellation (POL13_order_cancellation)]",
      "source": "policy_kb",
      "confidence": 0.7094
    }
@@ -66,6 +66,6 @@ USER: When will I get my money back for a cash on delivery order?
 -- CONVERSATION STATE AFTER THIS TURN --
    turn_index     : 1
    order_id       : None
-   order_features : none
+   order_features : remembered
    history        : 2 messages
 

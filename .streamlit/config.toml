@@ -1,0 +1,36 @@
+[theme]
+base = "dark"
+font = "Inter:https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+headingFont = "'Plus Jakarta Sans':https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
+baseRadius = "14px"
+buttonRadius = "10px"
+showWidgetBorder = true
+showSidebarBorder = true
+greenColor = "#1f8a4c"
+orangeColor = "#d68910"
+redColor = "#c0392b"
+blueColor = "#4f6bff"
+
+[theme.light]
+primaryColor = "#2874f0"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f5f7fb"
+textColor = "#12151c"
+borderColor = "rgba(15,23,42,0.10)"
+chartCategoricalColors = ["#2874f0", "#1f8a4c", "#d68910", "#c0392b", "#7c3aed", "#0891b2"]
+
+[theme.dark]
+primaryColor = "#4f6bff"
+backgroundColor = "#0e1117"
+secondaryBackgroundColor = "#161a23"
+textColor = "#e8eaf0"
+borderColor = "rgba(255,255,255,0.08)"
+chartCategoricalColors = ["#4f6bff", "#3ecf7e", "#f2b544", "#ff7a68", "#a78bfa", "#22d3ee"]
+
+[theme.light.sidebar]
+backgroundColor = "#f5f7fb"
+borderColor = "rgba(15,23,42,0.10)"
+
+[theme.dark.sidebar]
+backgroundColor = "#1a1f2b"
+borderColor = "rgba(255,255,255,0.08)"

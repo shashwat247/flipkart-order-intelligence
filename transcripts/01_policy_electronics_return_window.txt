@@ -16,13 +16,13 @@ TURN 1
 USER: How many days do I have to return a mobile phone?
 
 -- INTENT NODE (few-shot exemplars drive this routing) --
-   nearest few-shot example : "How long does a refund take for a prepaid order?"
+   nearest few-shot example : "Can I return this after a week?"
    that example's intent    : policy
-   cosine similarity        : 0.4361
+   cosine similarity        : 0.523
    routing floor            : 0.25 (below floor: False)
    FINAL INTENT             : policy
-   runner-up                : "What is the delivery time to a non-metro address?" (policy) @ 0.3443
-   runner-up                : "Can I cancel my order after it has shipped?" (policy) @ 0.3327
+   runner-up                : "Can I return my shoes after 8 days?" (policy) @ 0.4925
+   runner-up                : "Electronics order, prepaid, delivered in 8 days - is that a return risk?" (return_risk) @ 0.4713
    order id                 : None (not available)
 
 -- INPUT GUARDRAIL (prompt-injection scan, runs before any tool) --
@@ -57,7 +57,7 @@ USER: How many days do I have to return a mobile phone?
 
 -- FINAL STRUCTURED RESPONSE --
    {
-     "answer": "Electronics such as mobile phones, laptops, headphones and smart watches can be returned within 7 days of delivery. [Source: Electronics Return Window (POL03_electronics_return_window)] [Related policies: Home Products Return Window (POL04_home_return_window), Reverse Pickup Process and Timeline (POL10_reverse_pickup_process)]",
+     "answer": "Here's the relevant rule: Electronics such as mobile phones, laptops, headphones and smart watches can be returned within 7 days of delivery. [Source: Electronics Return Window (POL03_electronics_return_window)] [Related policies: Home Products Return Window (POL04_home_return_window), Reverse Pickup Process and Timeline (POL10_reverse_pickup_process)]",
      "source": "policy_kb",
      "confidence": 0.6429
    }
@@ -65,7 +65,7 @@ USER: How many days do I have to return a mobile phone?
 -- CONVERSATION STATE AFTER THIS TURN --
    turn_index     : 1
    order_id       : None
-   order_features : none
+   order_features : remembered
    history        : 2 messages
 
 ==============================================================================

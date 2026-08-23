@@ -21,8 +21,8 @@ USER: What is Flipkart's GST registration number?
    cosine similarity        : 0.2671
    routing floor            : 0.25 (below floor: False)
    FINAL INTENT             : policy
+   runner-up                : "This customer paid by COD for a 15000 laptop, will they return it?" (return_risk) @ 0.2285
    runner-up                : "Should we proactively contact the customer about order 88?" (return_risk) @ 0.2235
-   runner-up                : "Is free reverse pickup available for collecting my item?" (policy) @ 0.2151
    order id                 : None (not available)
 
 -- INPUT GUARDRAIL (prompt-injection scan, runs before any tool) --

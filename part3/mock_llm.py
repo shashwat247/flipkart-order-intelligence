@@ -13,6 +13,8 @@ Every function returns the fixed schema:
 where `source` is one of policy_kb / return_risk_tool / image_classifier_tool.
 """
 
+import zlib
+
 from part3.config import VALID_SOURCES
 
 MODE = "MOCK_LLM"
@@ -28,6 +30,17 @@ def _response(answer: str, source: str, confidence: float) -> dict:
     }
 
 
+def _pick(query: str, pool: list[str]) -> str:
+    """Deterministically rotate through a phrasing pool.
+
+    `zlib.crc32` (not the builtin `hash()`, which is randomised per process
+    unless PYTHONHASHSEED is fixed) so the same query always selects the same
+    phrasing, which is what keeps MOCK_LLM's determinism guarantee intact
+    while still varying the wording across different questions.
+    """
+    return pool[zlib.crc32(query.encode("utf-8")) % len(pool)]
+
+
 # A second retrieved document is only quoted as part of the answer when it is
 # nearly as good a match as the best one. Measured on the evaluation queries,
 # the best-to-second gap is 0.018-0.182: a small gap means the two documents are
@@ -38,13 +51,33 @@ def _response(answer: str, source: str, confidence: float) -> dict:
 # of the same rule.
 CO_QUOTE_MAX_GAP = 0.05
 
+# Varied lead-ins so answers don't all start identically. Selected
+# deterministically from the query (see `_pick`), so MOCK_LLM stays
+# reproducible: the same question always gets the same lead-in.
+_LEAD_INS_DEFAULT = [
+    "Here's what applies:",
+    "Based on the policy documents I found:",
+    "Here's the relevant rule:",
+    "For your situation:",
+    "Yes — here's what the policy says:",
+]
+_LEAD_INS_EXPLANATION = [
+    "In simple terms:",
+    "Here's the short version:",
+    "Put simply:",
+    "Breaking it down:",
+]
 
-def compose_policy_answer(query: str, doc_hits: list[dict], groundedness: dict) -> dict:
+
+def compose_policy_answer(query: str, doc_hits: list[dict], groundedness: dict,
+                          fine_intent: str | None = None) -> dict:
     """Answer a policy question by quoting the retrieved chunks.
 
     Confidence = the best retrieved chunk's cosine similarity. That is a real
     measured quantity (how well the corpus matched the question), not a
-    self-assessed number.
+    self-assessed number. `fine_intent` only ever changes the lead-in phrasing
+    (e.g. a plainer tone for "explanation"-style questions) -- it never changes
+    which text is quoted or cited.
     """
     best = doc_hits[0]
     quoted = [best]
@@ -57,7 +90,9 @@ def compose_policy_answer(query: str, doc_hits: list[dict], groundedness: dict) 
         if close_enough and runner_up["score"] >= groundedness["threshold"]:
             quoted.append(runner_up)
 
-    answer = " ".join(hit["best_chunk_text"] for hit in quoted)
+    pool = _LEAD_INS_EXPLANATION if fine_intent == "explanation" else _LEAD_INS_DEFAULT
+    lead_in = _pick(query, pool)
+    answer = lead_in + " " + " ".join(hit["best_chunk_text"] for hit in quoted)
     citation = ", ".join(f"{h['document_title']} ({h['document_id']})" for h in quoted)
     answer += f" [Source: {citation}]"
 
@@ -71,6 +106,45 @@ def compose_policy_answer(query: str, doc_hits: list[dict], groundedness: dict) 
                                for h in related) + "]")
 
     return _response(answer, "policy_kb", groundedness["best_score"])
+
+
+def compose_comparison_answer(query: str, doc_hits: list[dict], groundedness: dict) -> dict:
+    """Answer a comparison question by quoting every distinct retrieved
+    document side by side, rather than the single-best-match quote used for a
+    plain policy question.
+
+    Falls back to `compose_policy_answer` when retrieval only actually
+    surfaced one distinct document -- there is nothing to compare, so the
+    normal single-quote answer is the honest one.
+    """
+    if len(doc_hits) < 2:
+        return compose_policy_answer(query, doc_hits, groundedness)
+
+    parts = [f"{hit['document_title']} — {hit['best_chunk_text']}" for hit in doc_hits[:4]]
+    citation = ", ".join(f"{h['document_title']} ({h['document_id']})" for h in doc_hits[:4])
+    answer = "Comparing what's documented: " + "  |  ".join(parts) + f" [Source: {citation}]"
+    return _response(answer, "policy_kb", groundedness["best_score"])
+
+
+def compose_product_answer(product_hits: list[dict]) -> dict:
+    """Answer a product-catalog question from the retrieved catalog records.
+
+    Confidence = the best product hit's cosine similarity, the same honest
+    convention `compose_policy_answer` uses for policy chunks.
+    """
+    items = []
+    for hit in product_hits[:5]:
+        product = hit["product"]
+        returnability = ("non-returnable" if product["non_returnable"]
+                         else f"{product['return_window']}-day return window")
+        items.append(
+            f"{product['product_name']} (₹{product['price']}, {returnability}, "
+            f"{'exchange available' if product['exchange_available'] else 'no exchange'}, "
+            f"{'COD available' if product['cod_available'] else 'no COD'})"
+        )
+    answer = ("From the product catalog: " + "; ".join(items)
+              + f" [Source: product catalog, {len(product_hits)} matching record(s)]")
+    return _response(answer, "product_catalog", product_hits[0]["score"])
 
 
 def compose_ungrounded_refusal(query: str, groundedness: dict) -> dict:
@@ -150,11 +224,96 @@ def compose_blocked(injection: dict, lane_source: str) -> dict:
     return _response(answer, lane_source, 1.0)
 
 
-def compose_missing_input(what: str, detail: str, lane_source: str) -> dict:
-    """Ask for the input a tool needs instead of guessing at it."""
-    answer = (
-        f"I need {what} before I can answer that. {detail} I won't estimate it, "
-        f"because a number I made up would look exactly like a number the model "
-        f"produced."
-    )
+# Machine feature name -> the plain-English phrase used to ask for it. Keeps
+# `compose_missing_input` from asking for "num_previous_returns" verbatim.
+FEATURE_PROMPTS = {
+    "price_inr": "the order's price",
+    "discount_pct": "the discount percentage applied",
+    "customer_tenure_days": "how long the customer has had an account (in days)",
+    "num_previous_orders": "how many previous orders the customer has placed",
+    "num_previous_returns": "how many previous returns the customer has made",
+    "delivery_distance_km": "the delivery distance in kilometres",
+    "delivery_days": "how many days delivery took",
+    "is_weekend_order": "whether the order was placed on a weekend",
+    "rating_given": "the rating the customer gave",
+    "product_category": "the product category",
+    "payment_method": "the payment method used",
+}
+
+
+def _list_naturally(items: list[str]) -> str:
+    if len(items) == 1:
+        return items[0]
+    return ", ".join(items[:-1]) + f" and {items[-1]}"
+
+
+def compose_missing_input(result: dict, lane_source: str) -> dict:
+    """Ask for the input a tool needs instead of guessing at it.
+
+    `result` is a tool_result dict with `status == "missing_input"`. Two
+    shapes reach here: `check_return_risk`'s partial-feature-dict report
+    (`missing_features`, named individually so the user is only asked for
+    what's genuinely still missing -- see part3/slots.py for what free text
+    already fills in) and the generic "no order/image at all yet" case
+    (`what`/`detail`).
+    """
+    missing_features = result.get("missing_features")
+    if missing_features:
+        named = [FEATURE_PROMPTS.get(f, f) for f in missing_features]
+        answer = (
+            f"I can score this order's return risk once I also know "
+            f"{_list_naturally(named)}. I won't estimate any of these myself, "
+            f"because a guessed number would look exactly like a number the "
+            f"model produced."
+        )
+    else:
+        what = result.get("what", "more information")
+        detail = result.get("detail", "")
+        answer = (
+            f"I need {what} before I can answer that. {detail} I won't estimate it, "
+            f"because a number I made up would look exactly like a number the model "
+            f"produced."
+        )
     return _response(answer, lane_source, 0.0)
+
+
+# ------------------------------------------------------- conversational lane
+# No retrieval, no tool call: greeting/general_help/unsupported never touch
+# the policy corpus or a model, so confidence here is the intent classifier's
+# own measured exemplar-similarity, never a manufactured number.
+def compose_greeting_answer(confidence: float) -> dict:
+    answer = (
+        "Hi! I'm Flipkart's order-support assistant. I can help with return "
+        "policies, refunds, exchanges, delivery, order return-risk, product-photo "
+        "categories, and questions about the products in the catalog. What can I "
+        "help you with?"
+    )
+    return _response(answer, "conversational", confidence)
+
+
+def compose_general_help_answer(confidence: float) -> dict:
+    from part3.chunking import load_documents
+    from part3.products import load_catalog
+
+    n_docs = len(load_documents())
+    n_products = len(load_catalog())
+    answer = (
+        f"I can look up return, refund, exchange, delivery and cancellation rules "
+        f"from {n_docs} policy documents; answer questions about the {n_products} "
+        f"products in the catalog (return window, COD eligibility, exchange "
+        f"availability); score how likely a specific order is to be returned with "
+        f"the saved Random Forest model; and classify a product photo with the "
+        f"saved image classifier. Ask in your own words — you don't need a "
+        f"particular phrasing."
+    )
+    return _response(answer, "conversational", confidence)
+
+
+def compose_unsupported_refusal(query: str, confidence: float) -> dict:
+    answer = (
+        "I can help with e-commerce support: product policies, delivery, returns, "
+        "refunds, exchanges, return-risk analysis and product-photo classification. "
+        "I don't have reliable information about that topic, so I'd rather say so "
+        "than guess."
+    )
+    return _response(answer, "conversational", confidence)

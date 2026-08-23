@@ -300,3 +300,60 @@ def test_answer_path_makes_zero_network_calls(monkeypatch):
     assert run_once("How many days do I have to return a mobile phone?")["response"]
     assert run_once(f"Score the return risk for order {TEST_SPLIT_ORDER}.")["response"]
     assert run_once("Classify this product image.", image_path=SNEAKER)["response"]
+
+
+# --- free-text slot extraction ------------------------------------------------
+def test_an_order_id_is_never_read_as_a_feature_value():
+    """Regression: "order 1790" once matched the previous-order-count pattern,
+    which overwrote a real looked-up feature and changed the probability the
+    agent reported. An id is an identifier, never a count."""
+    from part3.slots import extract_order_slots
+
+    assert extract_order_slots("Score the return risk for order 1790.") == {}
+    assert extract_order_slots("order 4021") == {}
+
+
+def test_labelled_features_are_read_back_out_of_a_clarifying_reply():
+    from part3.slots import extract_order_slots
+
+    slots = extract_order_slots(
+        "20% off, customer for 300 days, 5 previous orders, 1 previous return, "
+        "40 km, delivered in 3 days, weekday, rated 4"
+    )
+    assert slots["discount_pct"] == 20.0
+    assert slots["customer_tenure_days"] == 300
+    assert slots["num_previous_orders"] == 5
+    assert slots["num_previous_returns"] == 1
+    assert slots["delivery_distance_km"] == 40.0
+    assert slots["delivery_days"] == 3
+    assert slots["is_weekend_order"] == 0
+    assert slots["rating_given"] == 4.0
+
+
+def test_unlabelled_numbers_are_left_alone():
+    from part3.slots import extract_order_slots
+
+    assert "discount_pct" not in extract_order_slots("I have 3 items in my cart")
+    assert "price_inr" not in extract_order_slots("I bought a 12000 phone")
+
+
+def test_a_clarifying_reply_stays_in_the_lane_that_asked():
+    """The agent asks for missing order features; the reply that supplies them
+    must be scored, not re-classified as a fresh question."""
+    conversation = Conversation("pending-lane")
+    first = conversation.ask("I bought running shoes for Rs 4500 using COD - what's the return risk?")
+    assert first["tool_result"]["status"] == "missing_input"
+    assert first["pending_tool"] == "return_risk"
+
+    second = conversation.ask(
+        "20% off, customer for 300 days, 5 previous orders, 1 previous return, "
+        "40 km, delivered in 3 days, weekday, rated 4"
+    )
+    assert second["intent"] == "return_risk"
+    assert second["tool_result"]["status"] == "ok"
+    assert second["pending_tool"] is None
+    # the number reported must be the model's own
+    from part3.tools import check_return_risk as _crr
+
+    assert (second["tool_result"]["return_probability"]
+            == _crr(second["order_features"])["return_probability"])

@@ -1,0 +1,58 @@
+{
+  "impurity": [
+    {
+      "feature": "payment_method",
+      "value": 0.26920166417758096,
+      "rank": 1
+    },
+    {
+      "feature": "price_inr",
+      "value": 0.1322672815442754,
+      "rank": 2
+    },
+    {
+      "feature": "delivery_distance_km",
+      "value": 0.09567454153021014,
+      "rank": 3
+    },
+    {
+      "feature": "customer_tenure_days",
+      "value": 0.09001289001920364,
+      "rank": 4
+    },
+    {
+      "feature": "delivery_days",
+      "value": 0.08844907146116977,
+      "rank": 5
+    }
+  ],
+  "permutation": [
+    {
+      "feature": "payment_method",
+      "value": 0.0980163669484057,
+      "rank": 1
+    },
+    {
+      "feature": "price_inr",
+      "value": 0.010203460688897492,
+      "rank": 2
+    },
+    {
+      "feature": "delivery_days",
+      "value": 0.0025712151925743167,
+      "rank": 5
+    },
+    {
+      "feature": "delivery_distance_km",
+      "value": -0.0002149594382604647,
+      "rank": 7
+    },
+    {
+      "feature": "customer_tenure_days",
+      "value": -0.005490949180269633,
+      "rank": 11
+    }
+  ],
+  "biggest_drop": "customer_tenure_days",
+  "explanation": "`customer_tenure_days` ranks #4 by impurity (0.0900) but falls to #11 under permutation (-0.00549 ROC-AUC drop, a fall of 7 places) -- impurity importance overrates high-cardinality continuous columns because they offer more candidate split points, some of which look good on training data by chance alone; permutation importance measures the real held-out-test cost of destroying the column instead."
+}

@@ -21,6 +21,12 @@ REPORTS_DIR = ROOT / "reports"
 INDEX_PATH = INDEX_DIR / "policy.faiss"
 CHUNKS_PATH = INDEX_DIR / "chunks.json"
 
+# Synthetic product catalog -- a second, structured knowledge source alongside
+# the policy documents (see part3/products.py). Not part of the FAISS index:
+# 54 rows is small enough for brute-force cosine search, same pattern the
+# few-shot exemplar matcher already uses.
+PRODUCTS_PATH = KB_DIR / "products.json"
+
 # Free, local, keyless embedding model (~90 MB, downloaded once and cached).
 EMBEDDING_MODEL = "all-MiniLM-L6-v2"
 
@@ -47,8 +53,18 @@ SIMILARITY_THRESHOLD = 0.45
 # path is optional, never required, and never exercised unless the user opts in.
 USE_LIVE_LLM = os.environ.get("USE_LIVE_LLM", "").strip() not in ("", "0", "false", "False")
 
-VALID_SOURCES = ("policy_kb", "return_risk_tool", "image_classifier_tool")
-INTENTS = ("policy", "return_risk", "product_category")
+VALID_SOURCES = (
+    "policy_kb", "return_risk_tool", "image_classifier_tool",
+    # Added for the flagship-agent upgrade: a purely conversational turn
+    # (greeting / "what can you do?") and a product-catalog-grounded answer
+    # are each their own honestly-labelled source, not repurposed policy_kb.
+    "conversational", "product_catalog",
+)
+# The graph's conditional edge only ever selects one of these four lanes (plus
+# "blocked", handled separately). Every fine-grained conversational intent
+# (see part3/prompts.py::FEW_SHOT_EXAMPLES and part3/graph.py::LANE_FOR_INTENT)
+# maps down onto one of these -- the three original lanes stay untouched.
+INTENTS = ("policy", "return_risk", "product_category", "conversational")
 
 # --- intent routing floor ---------------------------------------------------
 # The intent node routes to the nearest few-shot exemplar. When a message is far

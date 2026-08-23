@@ -36,6 +36,8 @@ proves it by poisoning every socket and re-running the agent.
 - [Part 1 — Return-risk scoring pipeline](#part-1--return-risk-scoring-pipeline)
 - [Part 2 — Product image categoriser](#part-2--product-image-categoriser)
 - [Part 3 — Flipkart support agent](#part-3--flipkart-support-agent)
+- [Streamlit App — Flipkart Intelligence & Support Center](#streamlit-app--flipkart-intelligence--support-center)
+- [Order Intelligence Console](#order-intelligence-console)
 - [Example transcript](#example-transcript)
 - [Multi-turn state vs a fresh conversation](#multi-turn-state-vs-a-fresh-conversation)
 - [Retrieval evaluation](#retrieval-evaluation)
@@ -98,6 +100,13 @@ python3 -m part3.run_transcripts              # writes the 10 transcripts
 # --- verify the whole thing --------------------------------------------
 pytest
 python3 validate_project.py
+
+# --- the app: backend API + React console ------------------------------
+python3 -m backend.api                  # terminal 1 -> http://127.0.0.1:8000
+cd frontend && npm install && npm run dev   # terminal 2 -> http://localhost:5173
+
+# --- Streamlit app (secondary UI) --------------------------------------
+streamlit run streamlit_app/app.py      # http://localhost:8501
 ```
 
 ### Run the agent (default MOCK_LLM mode — no API key)
@@ -167,6 +176,13 @@ Part 2 evaluation ~1 min, Part 3 index build ~5 s.
 │   ├── evaluate_retrieval.py       Task 10
 │   └── run_transcripts.py          Task 9
 │
+├── backend/                        HTTP API the console talks to
+│   └── api.py                      FastAPI: /api/chat, /api/return-risk, /api/classify, ...
+├── frontend/                       Order Intelligence Console (React/Vite/TS) — PRIMARY UI
+│   └── src/screens/assistant/      the chat interface (default route)
+├── streamlit_app/                  secondary Streamlit UI over the same artifacts
+│   └── app.py                      Dashboard, chat, risk/image tools, KB explorer, insights
+│
 ├── models/
 │   ├── return_risk_model.pkl       tuned RF pipeline (Part 1)
 │   ├── return_risk_metadata.json   t*_rf and bucket definitions
@@ -179,7 +195,9 @@ Part 2 evaluation ~1 min, Part 3 index build ~5 s.
 │
 ├── reports/                        every generated analysis (all text/CSV)
 ├── transcripts/                    10 agent transcripts + INDEX.md
-└── tests/                          88 pytest tests
+├── scripts/
+│   └── export_reports.py          writes frontend/public/reports/*.json from the real artifacts
+└── tests/                          136 pytest tests
 ```
 
 ---
@@ -817,6 +835,160 @@ acceptance criterion satisfied.
 
 ---
 
+## Streamlit App — Flipkart Intelligence & Support Center
+
+```bash
+streamlit run streamlit_app/app.py      # http://localhost:8501
+```
+
+A Streamlit UI over the real Part 1/2/3 artifacts — every page calls the same
+functions the CLI and the test suite call (`check_return_risk`,
+`classify_product_image`, `part3.graph.run_once` / `Conversation`,
+`part3.retrieval.search_documents`). It holds **no** copy of the
+return-risk formula, the Random Forest's threshold, or a policy answer; it
+only renders what those functions return. `streamlit_app/app.py` keeps every
+backend call in small, Streamlit-free functions at the top of the file
+(`analyze_risk`, `classify_uploaded_bytes`, `ask_policy`, `search_kb`,
+`get_system_status`, …) precisely so they can be — and are —
+imported and tested directly (`tests/test_streamlit_app.py`), not just clicked
+through by hand.
+
+| page | what it does |
+|---|---|
+| **Dashboard** | A "Good morning" overview with five feature cards (Return Risk, Product AI, Policy AI, AI Assistant, System), each showing real status/metrics read from the saved artifacts and a button that jumps straight to that page. |
+| **AI Support** | One chat for policy / return-risk / product-category questions, routed by the real LangGraph agent. Shows source, confidence and the tool used per turn, with node trace, groundedness and retrieved evidence collapsed in a technical-details expander. A **New Conversation** button explicitly rebuilds the `Conversation` object, clearing LangGraph state. |
+| **Return Risk** | A form over the model's real 11 features (with an optional "load a real order by id" shortcut). *Analyze Return Risk* calls `check_return_risk` directly; shows the probability, the LOW/MEDIUM/HIGH bucket, a threshold-anchored probability gauge, and `t*_rf` in the technical-details expander. Recent analyses export to CSV. |
+| **Product Classifier** | Upload/drop a PNG/JPG/JPEG or pick a real Fashion-MNIST sample; calls `classify_product_image` on a safely-scoped temp file (never the filename) and shows the predicted class, a confidence bar, and top-3. |
+| **Policy Knowledge** | Policy documents as searchable, category-tagged cards (category derived deterministically from each document's own id/title), each with an **Ask AI about this policy** button that jumps to AI Support and asks the real agent. Semantic search over `search_documents` and a live Task 10 Precision@3/Recall@3 re-run are one click away in expanders. |
+| **Model Insights** | Charts and tables read from `models/*_metadata.json` and `reports/*.csv` — ROC-AUC, F1/precision/recall at `t*_rf`, impurity-vs-permutation feature importance, the threshold sweep, the 10x10 confusion matrix, and per-class precision/recall. All figures are generated from saved evaluation results, not recomputed live. |
+| **System Status** | Every component's live Ready/Unavailable status (KB, FAISS index, return-risk model, image model, LangGraph, AI mode) with its real detail message and a last-checked timestamp — the detailed counterpart to the Dashboard's summary cards. |
+
+**Offline by default.** The sidebar always shows the real AI-mode badge —
+`Offline Demo Mode (MOCK_LLM)` unless `USE_LIVE_LLM=1` is set — and every page
+works with zero API keys and zero outbound network calls, same as the CLI agent.
+
+**Light/dark theme.** `.streamlit/config.toml` declares both a light and a
+dark palette, so Streamlit's native Settings menu (⋮ top right) can switch
+between them — the browser remembers the choice. The app's own CSS reads
+`st.context.theme.type` and swaps its own color tokens to match, so the
+custom cards/badges/gauges stay legible in both modes.
+
+**Error handling.** Every backend call on every page is wrapped so a missing
+artifact, an unreadable image, an empty question or a retrieval failure
+surfaces as a plain `st.error(...)` message, never a raw traceback. The
+Dashboard reflects missing artifacts as `NOT READY` rather than silently
+degrading.
+
+This Streamlit app is the **secondary** UI. The primary interface is the React
+console at `frontend/`, whose Support Assistant screen is a live chat backed by
+`backend/api.py` — see the next section.
+
+---
+
+## Backend API
+
+`backend/api.py` is the HTTP layer the console talks to. It is transport only:
+every route delegates to the real agent or a real saved model, and there is no
+answer table anywhere in the package.
+
+```bash
+python3 -m backend.api          # http://127.0.0.1:8000  (OpenAPI docs at /docs)
+```
+
+| Route | Method | What it does |
+| --- | --- | --- |
+| `/api/chat` | POST | One turn through the LangGraph agent. Returns the answer plus the intent, node trace, groundedness scores, retrieved documents and tool result. |
+| `/api/conversations/reset` | POST | A new conversation id with genuinely empty state. |
+| `/api/conversations/{id}/state` | GET | What that conversation currently remembers. |
+| `/api/return-risk` | POST | Part 1's saved Random Forest, by `order_id` or explicit `order_features`. |
+| `/api/classify` | POST | Part 2's saved ResNet-18 on one of the committed sample PNGs. |
+| `/api/policies` | GET | The real knowledge base and its chunk count. |
+| `/api/status` | GET | Live readiness of all six components. |
+| `/api/health` | GET | Liveness plus the active mode. |
+
+That delegation is enforced, not asserted: `validate_project.py` calls
+`/api/chat`, `/api/return-risk` and `/api/classify` and asserts each result is
+**identical** to a direct in-process call to the same agent and models, and
+`tests/test_backend_api.py` does the same across 21 tests. The API binds to
+127.0.0.1, keeps conversations in process memory, and needs no API key.
+
+---
+
+## Order Intelligence Console
+
+The **primary user interface**: a React/Vite/TypeScript app at `frontend/`.
+
+It has two halves.
+
+**Support Assistant (`/assistant`, the default screen) — live.** A chat
+interface that POSTs whatever you type to `POST /api/chat` on the backend, which
+runs the real LangGraph agent. There is no question list, no keyword matching
+and no canned answer anywhere in the frontend: arbitrary natural language goes
+to the agent and whatever the agent returns is rendered. Each answer shows the
+source, the confidence, the graph path that produced it, the retrieved policy
+documents with their similarity scores, and — for a tool call — a return-risk
+card anchored to `t*_rf` or a product-category card with the classifier's top-3.
+Typing indicator, message animations, conversation state, new-conversation
+reset, empty and error states, keyboard send (Enter; Shift+Enter for a newline)
+and a layout that works from 375 px up.
+
+**The inspection screens — static.** Every other screen makes an artifact,
+metric, decision boundary or agent trace inspectable, reading a pre-exported
+JSON file. If a report is missing, the screen names the exact file and the
+command that produces it rather than showing a placeholder.
+
+```bash
+# 1. export every report the console reads (from the real, committed
+#    artifacts — orders_dataset.csv, models/*.json, reports/*.csv,
+#    transcripts/*.txt, the policy knowledge base)
+python3 scripts/export_reports.py
+
+# 2. install once
+cd frontend
+npm install
+
+# 3. run it
+npm run dev              # http://localhost:5173
+
+# ...or build the static bundle
+npm run build
+```
+
+Re-run `python3 scripts/export_reports.py` any time the underlying reports
+change (a retrain, a new transcript run) — every output file is overwritten
+from scratch, and nothing in `frontend/` is a second source of truth.
+
+**Design system** — "night warehouse": a sorting facility at 2am, not a
+generic dark SaaS dashboard. Bricolage Grotesque for the one hero number per
+screen, Public Sans for prose, IBM Plex Mono (tabular figures) for every
+metric, threshold, file path and code fragment — prose is human, numbers are
+machine. The signature element is the **Graph Rail**, a persistent vertical
+circuit diagram of the LangGraph agent (`guard → intent → [retrieve | tool |
+direct] → generate`) that lights the traversed path in amber per turn and
+clamps red at a blocked guardrail.
+
+**30 screens** across four groups (Project; Part 1, 9 screens; Part 2, 8
+screens; Part 3, 10 screens), a 12-component shared library
+(`MetricTile`, `DataTable`, `Heatmap`, `RankedBars`, `ThresholdChart`,
+`RiskBadge`, `ChunkCard`, `JsonCard`, `GraphRail`, `EmptyState`, `CodeBlock`,
+`ProvenanceStrip`), hash-based routing and an in-house fuzzy command palette
+(⌘K) — no router or fuzzy-search dependency beyond `recharts` and
+`lucide-react`.
+
+Two things the console deliberately does NOT pretend to do, because it is
+static with no backend: the **Agent Console** and **Graph Inspector** replay
+the real, committed `transcripts/*.txt` conversations rather than running a
+live model call; the **Retrieval Explorer** is restricted to the pre-scored
+evaluation queries in `part3/eval_queries.py` rather than offering free-text
+embedding search it cannot back statically. Both are stated as such on
+screen, not silently narrowed.
+
+`scripts/export_reports.py` is covered by `tests/test_export_reports.py`
+(part of the `pytest` run below), and `python3 validate_project.py` checks
+that every report parses and that `npm run build` succeeds.
+
+---
+
 ## Example transcript
 
 One complete run, verbatim from
@@ -1032,11 +1204,11 @@ classify_product_image("data/sample_images/07_sneaker.png")
 ## Tests and validation
 
 ```bash
-pytest                      # 88 tests
-python3 validate_project.py # 71 end-to-end acceptance checks
+pytest                      # 136 tests (103 Part 1-3 + 28 Streamlit app + 5 export_reports.py)
+python3 validate_project.py # 93 end-to-end acceptance checks
 ```
 
-**All 88 tests pass.** Coverage includes: generator determinism (byte-identical
+**All 136 tests pass.** Coverage includes: generator determinism (byte-identical
 re-run), the MAR missingness gap, artifact loading, `t*_rf` reproducibility from
 the saved model's own `predict_proba`, 10-class output, PNG provenance,
 filename-independence of image predictions, intent routing for all three lanes,
@@ -1045,6 +1217,16 @@ agreement, bucket anchoring to `t*_rf`, injection detection (and
 *non*-detection of benign text), the groundedness refusal, multi-turn state,
 fresh-conversation reset, conversation isolation, per-turn scratch isolation,
 MOCK_LLM determinism, and the zero-network proof.
+
+`tests/test_streamlit_app.py` (28 tests) covers the Streamlit app separately: the app
+boots and every page renders without an exception (`streamlit.testing.v1.AppTest`),
+the Return Risk page's actual form widgets submit to the real saved model,
+the Product Classifier's sample-image flow reaches the real classifier, Policy
+Knowledge's search and its "Ask AI about this policy" card button both reach
+real retrieval and the real agent, the Dashboard's feature-card buttons
+navigate to their real pages, chat state is carried and the *New Conversation*
+button really clears it, and a broken/missing artifact produces a friendly
+status row instead of raising.
 
 `validate_project.py` additionally checks the committed repository — no
 virtualenv, no raw IDX data, no feature cache, but model artifacts and sample
@@ -1131,6 +1313,10 @@ evaluated on, and the transcripts use held-out test-split orders), but a real
 deployment would query an order service, and the feature values would arrive with
 production data-quality problems this dataset does not have.
 
-**Scope.** There is no API server, no UI, no authentication, no rate limiting, no
-monitoring and no model-drift detection. This is a reproducible academic
-pipeline plus a command-line agent, not a production service.
+**Scope.** There is a local HTTP API (`backend/api.py`), a React console
+(`frontend/`) and a Streamlit UI (`streamlit_app/app.py`), but no
+authentication, no rate limiting, no persistent multi-user session store, no
+monitoring and no model-drift detection. The API binds to 127.0.0.1 and keeps
+conversations in process memory. This is a reproducible academic pipeline plus a local agent and UI,
+not a production service — the Streamlit app is single-process and holds one
+conversation per browser session in memory, not in a database.

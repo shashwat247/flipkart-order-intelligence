@@ -1,0 +1,265 @@
+{
+  "test_accuracy": 0.8872,
+  "reference_accuracy": 0.8,
+  "class_names": [
+    "T-shirt/top",
+    "Trouser",
+    "Pullover",
+    "Dress",
+    "Coat",
+    "Sandal",
+    "Shirt",
+    "Sneaker",
+    "Bag",
+    "Ankle boot"
+  ],
+  "confusion_matrix": [
+    [
+      822,
+      5,
+      20,
+      21,
+      3,
+      2,
+      119,
+      0,
+      7,
+      1
+    ],
+    [
+      1,
+      973,
+      3,
+      15,
+      2,
+      1,
+      4,
+      0,
+      1,
+      0
+    ],
+    [
+      13,
+      0,
+      861,
+      3,
+      56,
+      0,
+      66,
+      0,
+      1,
+      0
+    ],
+    [
+      22,
+      7,
+      19,
+      849,
+      35,
+      0,
+      67,
+      0,
+      1,
+      0
+    ],
+    [
+      1,
+      0,
+      64,
+      24,
+      801,
+      0,
+      107,
+      0,
+      3,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      950,
+      1,
+      36,
+      2,
+      11
+    ],
+    [
+      104,
+      0,
+      42,
+      27,
+      88,
+      1,
+      730,
+      0,
+      8,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      16,
+      0,
+      962,
+      1,
+      21
+    ],
+    [
+      1,
+      0,
+      2,
+      3,
+      1,
+      2,
+      9,
+      0,
+      981,
+      1
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      1,
+      13,
+      0,
+      42,
+      1,
+      943
+    ]
+  ],
+  "per_class": [
+    {
+      "class": "T-shirt/top",
+      "precision": 0.8527,
+      "recall": 0.822,
+      "f1": 0.8371,
+      "support": 1000
+    },
+    {
+      "class": "Trouser",
+      "precision": 0.9878,
+      "recall": 0.973,
+      "f1": 0.9804,
+      "support": 1000
+    },
+    {
+      "class": "Pullover",
+      "precision": 0.8516,
+      "recall": 0.861,
+      "f1": 0.8563,
+      "support": 1000
+    },
+    {
+      "class": "Dress",
+      "precision": 0.9013,
+      "recall": 0.849,
+      "f1": 0.8744,
+      "support": 1000
+    },
+    {
+      "class": "Coat",
+      "precision": 0.8116,
+      "recall": 0.801,
+      "f1": 0.8062,
+      "support": 1000
+    },
+    {
+      "class": "Sandal",
+      "precision": 0.9645,
+      "recall": 0.95,
+      "f1": 0.9572,
+      "support": 1000
+    },
+    {
+      "class": "Shirt",
+      "precision": 0.6618,
+      "recall": 0.73,
+      "f1": 0.6942,
+      "support": 1000
+    },
+    {
+      "class": "Sneaker",
+      "precision": 0.925,
+      "recall": 0.962,
+      "f1": 0.9431,
+      "support": 1000
+    },
+    {
+      "class": "Bag",
+      "precision": 0.9751,
+      "recall": 0.981,
+      "f1": 0.9781,
+      "support": 1000
+    },
+    {
+      "class": "Ankle boot",
+      "precision": 0.9652,
+      "recall": 0.943,
+      "f1": 0.954,
+      "support": 1000
+    }
+  ],
+  "confusion_pairs": [
+    {
+      "true_class": "T-shirt/top",
+      "predicted_class": "Shirt",
+      "count": 119
+    },
+    {
+      "true_class": "Coat",
+      "predicted_class": "Shirt",
+      "count": 107
+    },
+    {
+      "true_class": "Shirt",
+      "predicted_class": "T-shirt/top",
+      "count": 104
+    },
+    {
+      "true_class": "Shirt",
+      "predicted_class": "Coat",
+      "count": 88
+    },
+    {
+      "true_class": "Dress",
+      "predicted_class": "Shirt",
+      "count": 67
+    },
+    {
+      "true_class": "Pullover",
+      "predicted_class": "Shirt",
+      "count": 66
+    }
+  ],
+  "pair_explanations": [
+    {
+      "class_a": "Shirt",
+      "class_b": "T-shirt/top",
+      "total_misclassifications": 223,
+      "read_off": "Read off the matrix: 104 `Shirt` images were predicted `T-shirt/top`, and 119\n`T-shirt/top` images were predicted `Shirt`.",
+      "explanation": "Both are short-to-medium sleeved upper-body garments photographed flat against the same background, and at 28x28 the only thing that distinguishes them is a button placket or a collar \u2014 features that occupy perhaps three or four pixels at this resolution and are frequently smoothed away entirely by the downsampling. The silhouettes are close to identical: same shoulder width, same torso taper, same sleeve stubs. Even a human labelling the raw 28x28 thumbnails disagrees with the ground truth on this pair regularly, which is why it is the canonical hard pair in Fashion-MNIST. Our upsampling to 224x224 cannot recover detail that was never captured \u2014 it interpolates the existing 784 pixels, so the collar that would settle the question simply is not in the signal."
+    },
+    {
+      "class_a": "Coat",
+      "class_b": "Shirt",
+      "total_misclassifications": 195,
+      "read_off": "Read off the matrix: 107 `Coat` images were predicted `Shirt`, and 88\n`Shirt` images were predicted `Coat`.",
+      "explanation": "A coat and a long-sleeved shirt share the same basic outline: a rectangular torso with two sleeves extending to roughly the same length. The real-world difference is thickness, layering and fastening hardware, all of which read as subtle intensity gradients rather than shape changes. Because the images are greyscale, the model loses the colour and texture cues (wool vs cotton weave) that a shopper would use instantly, and is left comparing two very similar binary silhouettes."
+    },
+    {
+      "class_a": "Coat",
+      "class_b": "Pullover",
+      "total_misclassifications": 120,
+      "read_off": "Read off the matrix: 64 `Coat` images were predicted `Pullover`, and 56\n`Pullover` images were predicted `Coat`.",
+      "explanation": "These two occupy nearly the same silhouette envelope \u2014 a filled torso block with two sleeves \u2014 and differ mainly in whether the front is open or closed. In greyscale at this resolution a coat's front opening often renders as a faint vertical intensity seam, and a pullover with a central fabric fold produces the same artifact, so the cue is not reliable."
+    }
+  ]
+}

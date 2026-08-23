@@ -20,3 +20,8 @@ data/feature_cache/
 
 # OS noise
 .DS_Store
+
+# Agent-tool scaffolding: symlinks into .venv/ (would be broken clones) and
+# machine-local tool settings. Not part of the project.
+.agents/
+.claude/
